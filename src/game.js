@@ -149,7 +149,7 @@ function reflect(x) {
 }
 function resolveTarget(action, snapshot, index) {
   const p = snapshot.puck, d = snapshot.defender;
-  const lane = action === 'left' ? .30 : action === 'right' ? .70 : .5;
+  const lane = action === 'left' ? .42 : action === 'right' ? .58 : .5;
   if (['left', 'center', 'right'].includes(action)) return world({ x: lane, y: .15 }, index);
   const y = action === 'press' ? .28 : .15;
   const intercept = p.vy < -.02 ? reflect(p.x + p.vx * clamp((y - p.y) / p.vy, 0, 1.2)) : d.x;
@@ -232,13 +232,14 @@ function start() {
   active = true; paused = false; accumulator = 0;
   deadline = performance.now() + MATCH_SECONDS * 1000; serveAt = performance.now() + 900;
   clip = null; if (clipUrl) URL.revokeObjectURL(clipUrl); clipUrl = null;
-  document.body.dataset.playing = 'true'; $('#result').hidden = true; $('#gesture-hint').hidden = false;
+  document.body.dataset.playing = 'true'; $('#result').hidden = true; $('#paused').hidden = true; $('#gesture-hint').hidden = false;
   setNotice(''); startRecording(); bots.forEach(bot => decide(bot, serial)); controls();
   canvas.focus({ preventScroll: true });
 }
 function finish(message) {
   if (!active) return;
   active = false; paused = false; endedAt = performance.now(); result = message;
+  $('#paused').hidden = true;
   bots.forEach(bot => clearTimeout(bot.timer));
   $('#result').hidden = false; $('#result-title').textContent = message;
   $('#result-score').textContent = `${you} : ${opponents}`;
