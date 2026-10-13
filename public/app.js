@@ -46,6 +46,7 @@ let paused = false;
 let modelsReady = false;
 let modelFailure = '';
 let deadline = 0;
+let pauseStarted = 0;
 let secondsLeft = MATCH_LENGTH;
 let previousFrame = 0;
 let accumulator = 0;
@@ -99,12 +100,12 @@ function clamp(value, min, max) {
 }
 
 function numberLabel(value) {
-  if (!Number.isFinite(value)) return '—';
+  if (!Number.isFinite(value)) return '-';
   return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value);
 }
 
 function costLabel(table) {
-  if (!table.costKnown) return '—';
+  if (!table.costKnown) return '-';
   return new Intl.NumberFormat('en-US', {
     style: 'currency', currency: 'USD', minimumFractionDigits: 5, maximumFractionDigits: 5,
   }).format(table.totalCost);
@@ -640,7 +641,8 @@ async function askModel(table, matchId) {
       setCardStatus(table.index, 'error', 'RETRYING');
       setStatus(`${modelShortName(table.index)}: ${table.lastError}`, true);
       table.retryDelayMs = response.status === 429 ? retryDelay(response) : 0;
-      const permanentRequestFailure = response.status >= 400 && response.status < 500 && response.status !== 429;
+      const errorStatus = result.upstreamStatus || response.status;
+      const permanentRequestFailure = errorStatus >= 400 && errorStatus < 500 && errorStatus !== 429;
       if ((response.status === 503 && result.code === 'missing_key') || permanentRequestFailure) {
         modelsReady = false;
         modelFailure = result.message || 'OpenAI could not serve this model. Check the Worker key and project access, then reload.';
@@ -765,9 +767,13 @@ function togglePause() {
   if (!active) return;
   paused = !paused;
   if (paused) {
+    pauseStarted = performance.now();
+    if (replayRecorder?.state === 'recording') replayRecorder.pause();
     tables.forEach((table) => clearTimeout(table.timer));
     setStatus('Paused. Resume when ready.');
   } else {
+    deadline += performance.now() - pauseStarted;
+    if (replayRecorder?.state === 'paused') replayRecorder.resume();
     tables.forEach((table) => {
       if (!table.finished && !table.isThinking) scheduleDecision(table, matchNumber, 80);
     });
@@ -832,7 +838,7 @@ function drawReplay(now) {
     context.fillText(`0${index + 1}  ${modelShortName(index).toUpperCase()}`, margin + 22, y + 34);
     context.textAlign = 'right';
     context.fillStyle = '#b8c2b6';
-    context.fillText(`${table.latencyMs == null ? '—' : `${table.latencyMs}ms`}   ${costLabel(table)}`, width - margin - 22, y + 34);
+    context.fillText(`${table.latencyMs == null ? '-' : `${table.latencyMs}ms`}   ${costLabel(table)}`, width - margin - 22, y + 34);
     context.textAlign = 'left';
 
     context.fillStyle = '#9da79d';

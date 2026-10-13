@@ -4,8 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npx --yes wrangler dev",
-    "deploy": "npx --yes wrangler deploy",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
     "check": "node --check src/worker.js && node --check public/app.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.150.0"
   }
 }
