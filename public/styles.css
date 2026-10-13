@@ -7,7 +7,7 @@
   -webkit-font-smoothing: antialiased; font-synthesis: none;
 }
 * { box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; min-width: 320px; min-height: 100svh; }
+html, body { margin: 0; min-width: 0; min-height: 100svh; }
 body { padding-inline: max(20px, env(safe-area-inset-left)); background: var(--bg); }
 button, a { font: inherit; color: inherit; }
 a { text-decoration: none; }

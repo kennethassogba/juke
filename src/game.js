@@ -330,7 +330,9 @@ function hud(now) {
   labels.forEach(([x, y], index) => {
     const point = arena.project(x, y);
     const label = document.querySelector(`[data-goal="${index}"]`);
-    label.style.left = `${point.x * 100}%`; label.style.top = `${point.y * 100}%`;
+    const half = label.offsetWidth / 2;
+    label.style.left = `${clamp(point.x * canvas.clientWidth, half + 8, canvas.clientWidth - half - 8)}px`;
+    label.style.top = `${point.y * 100}%`;
   });
 }
 function frame(now) {
