@@ -4,11 +4,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
-    "check": "node --check src/worker.js && node --check public/app.js"
+    "dev": "npm run check && wrangler dev",
+    "build": "esbuild src/game.js --bundle --format=esm --minify --outfile=public/app.js",
+    "check": "node --check src/worker.js && node --check src/game.js && node --check src/scene.js && npm run build",
+    "deploy": "npm run check && wrangler deploy"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
     "wrangler": "^4.150.0"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
   }
 }

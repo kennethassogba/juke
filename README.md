@@ -1,33 +1,29 @@
 # JUKE
 
-Three air hockey tables, played with one pointer. Each table gets its own physical state and one real OpenAI decision at a time. The browser runs puck and paddle physics; the selected model action steers its defender when the API responds.
+https://juke.keff.uk
+
+One player paddle and one puck face three OpenAI defenders in a shared Three.js 3D arena. The human defends the front goal; GPT-6 Luna defends the left, GPT-5.6 Luna the back, and GPT-4.1 nano the right. First to five goals, or 40 seconds.
 
 ## Play
 
-https://juke.keff.uk
+Move the mouse, drag on the rink, or use the arrow keys while the rink is focused. Bumpers are optional. Save a silent 1080 × 1920 replay after the match.
 
-- 40-second matches; each table ends at three goals.
-- Drag, tap, or use arrow keys while focused on any table. The player paddle target is shared across all three.
-- Bumpers can be switched on or off.
-- Save a silent 9:16 replay after the match.
-- No registration. Anonymous requests are limited to 180 model calls per IP per minute by a Durable Object.
+## Decisions
 
-## Models
+All models receive the same compact physical state schema: puck position and velocity, the human paddle, their own paddle, both other defenders, goal bounds, bumpers, and score. Coordinates are rotated so each model defends y=0. Allowed actions are `intercept`, `press`, `left`, `center`, and `right`. The model selects the action; local physics executes it after the real API response arrives. No local model substitute is used.
 
-All tables start from the same state. Each model receives the same compact schema: normalized puck position and velocity, both paddles, score, goal bounds, and bumper positions. Every model can choose `intercept`, `press`, `left`, `center`, or `right`. A response changes only that table's defender. Recoverable API errors are shown and retried; JUKE does not substitute a local AI action.
+- `gpt-6-luna`: `/v1/decisions`, choice question.
+- `gpt-5.6-luna`: Responses API, strict structured output, reasoning effort `none`.
+- `gpt-4.1-nano`: Responses API, strict structured output.
 
-GPT-6 Luna uses `/v1/decisions` with a choice question. GPT-5.6 Luna uses `/v1/responses` with structured outputs and reasoning effort `none`. GPT-4.1 nano uses `/v1/responses` with structured outputs. Availability is checked through the Models API before play.
+The Models API checks availability before play. Per-model latency is measured around the upstream request. Costs use returned token usage and standard prices. Missing usage displays a dash.
 
-Latency is measured around the upstream API request. Per-table cost uses actual usage counts returned by OpenAI and the standard token prices in `src/worker.js`. Missing usage displays a dash.
+## Deployment
 
-## Deploy
+The private GitHub repository is `kennethassogba/juke`. Cloudflare Workers Builds runs `npm run check` to check and bundle the game, then `npx wrangler deploy` on pushes to `main`. GitHub Actions checks the same build and Worker bundle.
 
-The private repository is `kennethassogba/juke`. Cloudflare Workers Builds deploys `main` automatically with `npm run check` as the build command and `npx wrangler deploy` as the deploy command. GitHub Actions checks scripts and the Worker bundle on pushes and pull requests.
-
-The custom domain, assets, rate limiter, and `OPENAI_API_KEY` secret belong to the `juke-air-hockey` Worker. The key stays on Cloudflare and is never sent to the browser or GitHub. Never add a key to `wrangler.jsonc`, `vars`, or browser code.
+The `juke-air-hockey` Worker owns the custom domain, static assets, `OPENAI_API_KEY` secret, and Durable Object rate limiter. The secret never reaches GitHub or the browser. Anonymous requests are limited to 180 decisions per IP per minute.
 
 ## Development
 
-Run `npm ci`, create `.dev.vars` with `OPENAI_API_KEY`, then run `npm run dev`.
-
-Replay is recorded in-browser as WebM or MP4 depending on browser support.
+`npm ci`, add `OPENAI_API_KEY` to `.dev.vars`, then `npm run dev`. Source lives in `src/game.js`, `src/scene.js`, and `src/worker.js`. `public/app.js` is the generated browser bundle.

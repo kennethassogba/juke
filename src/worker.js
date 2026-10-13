@@ -5,7 +5,7 @@ const MODELS = Object.freeze({
 });
 
 const ACTIONS = Object.freeze(['intercept', 'press', 'left', 'center', 'right']);
-const SYSTEM_INSTRUCTIONS = 'Choose one defender action from the allowed list using this live table state. Intercept meets a puck moving toward your goal. Press steps forward. Left, center, and right guard those lanes. Return only the selected action.';
+const SYSTEM_INSTRUCTIONS = 'You defend one goal in a four-paddle air hockey arena against one human. Coordinates are rotated so your goal is y=0, x=goalStart..goalEnd. Other goals are centered on the other walls. Use puck position and velocity and all paddles. Choose one allowed action. Intercept tracks the incoming puck at y=.15. Press advances to y=.28. Left, center, right guard x=.30,.50,.70 at y=.15. Return only the selected action.';
 const CHOICES = Object.freeze([
   { value: 'intercept', description: 'Meet the puck on its path when it is moving toward your goal.' },
   { value: 'press', description: 'Step toward the puck to shorten its angle.' },
@@ -42,7 +42,7 @@ function finiteBetween(value, min, max) {
 function cleanState(value) {
   if (!value || value.version !== 1 || !value.bounds || !value.puck || !value.player || !value.defender) return null;
   if (!Number.isInteger(value.score?.player) || !Number.isInteger(value.score?.defender)) return null;
-  if (value.score.player < 0 || value.score.player > 4 || value.score.defender < 0 || value.score.defender > 4) return null;
+  if (value.score.player < 0 || value.score.player > 5 || value.score.defender < 0 || value.score.defender > 5) return null;
   const position = (item) => item && finiteBetween(item.x, -0.04, 1.04) && finiteBetween(item.y, -0.04, 1.04);
   if (!position(value.puck) || !position(value.player) || !position(value.defender)) return null;
   if (!finiteBetween(value.puck.vx, -4, 4) || !finiteBetween(value.puck.vy, -4, 4)) return null;
@@ -54,6 +54,12 @@ function cleanState(value) {
     if (!position(bumper) || !finiteBetween(bumper.radius, 0, 0.15)) return null;
     bumpers.push({ x: bumper.x, y: bumper.y, radius: bumper.radius });
   }
+  if (!Array.isArray(value.otherDefenders) || value.otherDefenders.length !== 2) return null;
+  const otherDefenders = [];
+  for (const paddle of value.otherDefenders) {
+    if (!position(paddle) || !finiteBetween(paddle.radius, 0, .15)) return null;
+    otherDefenders.push({ x: paddle.x, y: paddle.y, radius: paddle.radius });
+  }
   return {
     version: 1,
     bounds: { goalStart: value.bounds.goalStart, goalEnd: value.bounds.goalEnd },
@@ -61,6 +67,7 @@ function cleanState(value) {
     puck: { x: value.puck.x, y: value.puck.y, vx: value.puck.vx, vy: value.puck.vy, radius: value.puck.radius },
     player: { x: value.player.x, y: value.player.y, radius: value.player.radius },
     defender: { x: value.defender.x, y: value.defender.y, radius: value.defender.radius },
+    otherDefenders,
     bumpersOn: value.bumpersOn,
     bumpers,
   };
@@ -200,7 +207,7 @@ async function runDecision(request, env) {
     return json({ ...providerError('openai_network_error', 0), latencyMs: Math.round(performance.now() - startedAt), usage: null }, 502);
   }
 
-  const latencyMs = Math.round(performance.now() - startedAt);
+  let latencyMs = Math.round(performance.now() - startedAt);
   if (!upstream.ok) {
     console.warn(JSON.stringify({ event: 'decision_rejected', model, status: upstream.status, requestId: upstream.headers.get('x-request-id') || null }));
     const failure = providerError('openai_rejected', upstream.status);
@@ -214,6 +221,7 @@ async function runDecision(request, env) {
     console.error(JSON.stringify({ event: 'decision_unreadable', model }));
     return json({ code: 'openai_unreadable', message: 'OpenAI returned a response JUKE could not read.', latencyMs, usage: null }, 502);
   }
+  latencyMs = Math.round(performance.now() - startedAt);
 
   let action;
   if (config.kind === 'decision') {

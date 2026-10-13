@@ -1,113 +1,83 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#101512">
-    <meta name="description" content="One air hockey match. Three OpenAI models. Your hand on every table.">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-    <meta property="og:title" content="JUKE: three models, one move">
-    <meta property="og:description" content="Play three live OpenAI defenders at once.">
-    <meta property="og:type" content="website">
-    <title>JUKE: three models, one move</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/styles.css">
-    <script type="module" src="/app.js"></script>
-  </head>
-  <body>
-    <a class="skip-link" href="#game">Skip to game</a>
-    <header class="topbar">
-      <a class="wordmark" href="/" aria-label="JUKE home">JUKE<span class="wordmark-dot">.</span></a>
-      <span class="topbar-tag">AIR HOCKEY / OPENAI</span>
-      <button class="help-button" id="help-open" type="button" aria-haspopup="dialog">How it works <span aria-hidden="true">↗</span></button>
-    </header>
-
-    <main id="game">
-      <section class="intro" aria-labelledby="headline">
-        <div class="intro-copy">
-          <h1 id="headline">Read the puck.<br><em>Beat the models.</em></h1>
-          <p class="instructions">Drag on any table. All three paddles follow.</p>
-        </div>
-        <div class="match-controls">
-          <div class="duration"><span class="duration-number">40</span><span>SECONDS<br>MATCH</span></div>
-          <button class="primary-button" id="start-match" type="button" disabled>
-            <span class="button-icon" aria-hidden="true">▶</span><span id="start-label">Checking models</span>
-          </button>
-          <div class="control-row">
-            <button class="secondary-button" id="pause-match" type="button" disabled>Pause</button>
-            <button class="secondary-button obstacle-toggle" id="obstacles-toggle" type="button" aria-pressed="true">
-              <span class="toggle-mark" aria-hidden="true"></span> Bumpers
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <div id="connection-status" class="connection-status" role="status" aria-live="polite" aria-atomic="true"></div>
-
-      <section class="arena-grid" id="arena-grid" aria-label="Three live air hockey matches">
-        <article class="arena-card" data-model="gpt-6-luna" style="--player-accent: var(--violet)">
-          <div class="arena-header">
-            <div class="identity"><div><h2>GPT-6 Luna</h2><span class="model-type">DECISIONS API</span></div></div>
-            <span class="model-state" data-state>CHECKING</span>
-          </div>
-          <div class="board-wrap">
-            <canvas class="board" data-board="0" tabindex="0" aria-label="Air hockey table against GPT-6 Luna. Use pointer, touch, or arrow keys to move all three paddles." aria-describedby="board-hint"></canvas>
-            <span class="goal-flash" aria-hidden="true"></span>
-          </div>
-          <div class="score-row"><span>YOU</span><strong class="score" data-score>0 <i>:</i> 0</strong><span>LUNA</span></div>
-          <div class="stats-row"><span class="action-readout" data-action>WAITING</span><span><b data-latency>-</b><small> ms</small></span><span><b data-cost>-</b><small> COST</small></span></div>
-        </article>
-
-        <article class="arena-card" data-model="gpt-5.6-luna" style="--player-accent: var(--lime)">
-          <div class="arena-header">
-            <div class="identity"><div><h2>GPT-5.6 Luna</h2><span class="model-type">RESPONSES API</span></div></div>
-            <span class="model-state" data-state>CHECKING</span>
-          </div>
-          <div class="board-wrap">
-            <canvas class="board" data-board="1" tabindex="0" aria-label="Air hockey table against GPT-5.6 Luna. Use pointer, touch, or arrow keys to move all three paddles." aria-describedby="board-hint"></canvas>
-            <span class="goal-flash" aria-hidden="true"></span>
-          </div>
-          <div class="score-row"><span>YOU</span><strong class="score" data-score>0 <i>:</i> 0</strong><span>LUNA</span></div>
-          <div class="stats-row"><span class="action-readout" data-action>WAITING</span><span><b data-latency>-</b><small> ms</small></span><span><b data-cost>-</b><small> COST</small></span></div>
-        </article>
-
-        <article class="arena-card" data-model="gpt-4.1-nano" style="--player-accent: var(--coral)">
-          <div class="arena-header">
-            <div class="identity"><div><h2>GPT-4.1 nano</h2><span class="model-type">RESPONSES API</span></div></div>
-            <span class="model-state" data-state>CHECKING</span>
-          </div>
-          <div class="board-wrap">
-            <canvas class="board" data-board="2" tabindex="0" aria-label="Air hockey table against GPT-4.1 nano. Use pointer, touch, or arrow keys to move all three paddles." aria-describedby="board-hint"></canvas>
-            <span class="goal-flash" aria-hidden="true"></span>
-          </div>
-          <div class="score-row"><span>YOU</span><strong class="score" data-score>0 <i>:</i> 0</strong><span>NANO</span></div>
-          <div class="stats-row"><span class="action-readout" data-action>WAITING</span><span><b data-latency>-</b><small> ms</small></span><span><b data-cost>-</b><small> COST</small></span></div>
-        </article>
-      </section>
-
-      <div class="arena-footnote"><span id="board-hint">Drag · tap · arrow keys</span><button class="replay-button" id="save-replay" type="button" disabled><span aria-hidden="true">↧</span> Save vertical replay</button></div>
-      <p id="replay-note" class="replay-note" aria-live="polite"></p>
-    </main>
-
-    <footer class="site-footer">
-      <a class="footer-brand" href="https://keff.uk" target="_blank" rel="noreferrer" aria-label="k_eff, portfolio">k<span>_</span>eff</a>
-      <nav class="social-links" aria-label="Social links">
-        <a href="https://www.linkedin.com/company/keffuk" target="_blank" rel="noreferrer" aria-label="k_eff on LinkedIn">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.3 8.6H2V22h3.3V8.6ZM3.65 2A1.92 1.92 0 1 0 3.7 5.84 1.92 1.92 0 0 0 3.65 2ZM22 14.3c0-4.04-2.15-5.92-5.02-5.92a4.36 4.36 0 0 0-3.91 2.14V8.6H9.76V22h3.31v-6.63c0-1.75.33-3.45 2.5-3.45 2.13 0 2.16 2.01 2.16 3.56V22H22v-7.7Z"/></svg>
-        </a>
-        <a href="https://get.keff.uk" target="_blank" rel="noreferrer" aria-label="k_eff on Instagram">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.6" cy="6.7" r="1.1"/></svg>
-        </a>
-      </nav>
-    </footer>
-
-    <dialog class="help-dialog" id="help-dialog" aria-labelledby="help-title">
-      <div class="dialog-top"><button class="icon-button" id="help-close" type="button" aria-label="Close guide">×</button></div>
-      <h2 id="help-title">Your move.<br><em>Three live defenders.</em></h2>
-      <p>Each model gets its table’s puck, paddles, score and bumpers. Its API choice steers the defender. Your pointer moves every player paddle together.</p>
-      <p class="dialog-note">Latency and cost come from each response’s measured time and token usage.</p>
-      <button class="dialog-done" id="help-done" type="button">Back to game</button>
-    </dialog>
-    <canvas id="replay-canvas" width="1080" height="1920" aria-hidden="true"></canvas>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080a11">
+  <meta name="description" content="One paddle. Three OpenAI opponents. A real 3D air hockey arena.">
+  <meta property="og:title" content="JUKE: one paddle, three AI opponents">
+  <meta property="og:description" content="Play three real OpenAI models in a 3D air hockey arena.">
+  <meta property="og:url" content="https://juke.keff.uk">
+  <title>JUKE: one paddle, three AI opponents</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="JUKE home">JUKE<span>.</span></a>
+    <div class="header-controls">
+      <button id="obstacles" class="toggle" aria-pressed="true" type="button"><span class="toggle-dot" aria-hidden="true"></span>Bumpers</button>
+      <button id="help" class="help" type="button" aria-label="How to play" aria-haspopup="dialog">?</button>
+    </div>
+  </header>
+  <main>
+    <h1 class="sr-only">One paddle against three AI opponents</h1>
+    <div class="scoreboard" aria-label="Match score">
+      <div class="team-score"><span>You</span><b id="you-score">0</b></div>
+      <span id="clock" class="clock">40s</span>
+      <div class="team-score opponents-score"><b id="ai-score">0</b><span>AI</span></div>
+    </div>
+    <section class="stage" aria-label="3D air hockey arena">
+      <canvas id="arena" tabindex="0" aria-label="Your air hockey paddle. Drag, move the mouse, or use arrow keys."></canvas>
+      <div class="goal-label" data-goal="0">GPT-6 Luna</div>
+      <div class="goal-label" data-goal="1">GPT-5.6 Luna</div>
+      <div class="goal-label" data-goal="2">GPT-4.1 nano</div>
+      <div class="launch">
+        <div id="result" hidden><strong id="result-title"></strong><span id="result-score"></span></div>
+        <button id="play" type="button" class="play" disabled>Connecting</button>
+      </div>
+      <div id="paused" class="paused" hidden>Paused</div>
+      <span id="gesture-hint" class="gesture-hint">Drag your paddle</span>
+    </section>
+    <div class="opponents" aria-label="Live opponent decisions">
+      <article data-opponent="0">
+        <div class="opponent-heading"><h2>GPT-6 Luna</h2><b data-score aria-label="You versus GPT-6 Luna" title="You : opponent">0:0</b></div>
+        <div class="decision" data-action>Connecting</div>
+        <div class="measurements"><span data-latency>- ms</span><span data-cost>$0.00000</span></div>
+      </article>
+      <article data-opponent="1">
+        <div class="opponent-heading"><h2>GPT-5.6 Luna</h2><b data-score aria-label="You versus GPT-5.6 Luna" title="You : opponent">0:0</b></div>
+        <div class="decision" data-action>Connecting</div>
+        <div class="measurements"><span data-latency>- ms</span><span data-cost>$0.00000</span></div>
+      </article>
+      <article data-opponent="2">
+        <div class="opponent-heading"><h2>GPT-4.1 nano</h2><b data-score aria-label="You versus GPT-4.1 nano" title="You : opponent">0:0</b></div>
+        <div class="decision" data-action>Connecting</div>
+        <div class="measurements"><span data-latency>- ms</span><span data-cost>$0.00000</span></div>
+      </article>
+    </div>
+    <div class="transport">
+      <button id="pause" type="button" disabled>Pause</button>
+      <button id="restart" type="button" hidden>End match</button>
+      <button id="replay" type="button" disabled>Save replay <span aria-hidden="true">↓</span></button>
+    </div>
+    <p id="notice" role="status" aria-live="polite"></p>
+  </main>
+  <footer>
+    <a class="keff" href="https://keff.uk" target="_blank" rel="noreferrer" aria-label="k_eff">k<span>_</span>eff</a>
+    <nav aria-label="Social links">
+      <a href="https://www.linkedin.com/company/keffuk" target="_blank" rel="noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.4 8.3H2.1V22h3.3V8.3ZM3.7 2a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8ZM22 13.4c0-3.7-2-5.4-4.5-5.4-2.1 0-3 1.2-3.5 2V8.3h-3.3V22H14v-7.6c0-2 1-3.1 2.5-3.1s2.2 1.1 2.2 3.1V22H22v-8.6Z"/></svg></a>
+      <a href="https://get.keff.uk" target="_blank" rel="noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="insta-dot" cx="17.5" cy="6.5" r="1"/></svg></a>
+    </nav>
+  </footer>
+  <dialog id="guide" aria-labelledby="guide-title">
+    <button id="close-guide" class="close" aria-label="Close guide" type="button">×</button>
+    <h2 id="guide-title">One paddle.<br>Three opponents.</h2>
+    <p>Drag on the rink or move your mouse. Your white paddle faces three model defenders. Aim at their coloured goals and protect yours.</p>
+    <p>First to five, or 40 seconds. Opponent scores read you:AI.</p>
+    <p>Each model receives the puck, all four paddles, goals and bumpers. Decisions arrive from OpenAI while the game keeps moving. Latency is measured; costs use returned token usage.</p>
+    <p>Save a silent vertical replay after the match.</p>
+  </dialog>
+</body>
 </html>
