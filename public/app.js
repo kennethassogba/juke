@@ -753,6 +753,7 @@ function finishMatch(message) {
   active = false;
   paused = false;
   secondsLeft = Math.max(0, secondsLeft);
+  document.querySelector('.duration-number').textContent = String(secondsLeft).padStart(2, '0');
   tables.forEach((table) => {
     clearTimeout(table.timer);
     if (!table.finished && !table.isThinking) setCardStatus(table.index, 'done', 'END');
