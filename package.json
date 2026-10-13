@@ -1,0 +1,11 @@
+{
+  "name": "juke-air-hockey",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes wrangler dev",
+    "deploy": "npx --yes wrangler deploy",
+    "check": "node --check src/worker.js && node --check public/app.js"
+  }
+}
