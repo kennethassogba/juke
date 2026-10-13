@@ -178,15 +178,20 @@ function collide(item, touch = null, fixed = false) {
 }
 function goal(side, now) {
   if (side === 'player') {
-    const scorer = lastTouch >= 0 ? lastTouch : 1;
-    bots[scorer].goals += 1; opponents += 1;
-    arena.goal(.5, .93, COLORS[scorer]);
-    setNotice(`${NAMES[scorer]} scores`);
+    opponents += 1;
+    if (lastTouch >= 0) {
+      bots[lastTouch].goals += 1;
+      arena.goal(.5, .93, COLORS[lastTouch]);
+      setNotice(`${NAMES[lastTouch]} scores`);
+    } else {
+      arena.goal(.5, .93, '#f1f5ff');
+      setNotice('Own goal');
+    }
   } else {
     bots[side].conceded += 1; you += 1;
     const positions = [[.07, .5], [.5, .07], [.93, .5]];
     arena.goal(...positions[side], '#f1f5ff');
-    setNotice(`You score against ${NAMES[side]}`);
+    setNotice(`Goal against ${NAMES[side]}`);
   }
   puck = newPuck(); serveAt = now + 700; lastTouch = -1;
   if (you >= WIN || opponents >= WIN) finish(you > opponents ? 'You win' : 'Models win');
@@ -227,6 +232,7 @@ function start() {
   clip = null; if (clipUrl) URL.revokeObjectURL(clipUrl); clipUrl = null;
   document.body.dataset.playing = 'true'; $('#result').hidden = true; $('#gesture-hint').hidden = false;
   setNotice(''); startRecording(); bots.forEach(bot => decide(bot, serial)); controls();
+  canvas.focus({ preventScroll: true });
 }
 function finish(message) {
   if (!active) return;
@@ -267,7 +273,7 @@ canvas.addEventListener('keydown', event => {
 
 function startRecording() {
   if (!window.MediaRecorder || !videoCanvas.captureStream) return;
-  const mime = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/mp4'].find(type => MediaRecorder.isTypeSupported(type));
+  const mime = ['video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8'].find(type => MediaRecorder.isTypeSupported(type));
   if (!mime) return;
   try {
     arena.startReplay(); chunks = [];

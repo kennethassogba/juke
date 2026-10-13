@@ -23,8 +23,9 @@ button:focus-visible, a:focus-visible, canvas:focus-visible { outline: 2px solid
 .header-controls { display: flex; gap: 12px; align-items: center; }
 .toggle, .help { border: 1px solid var(--line); background: transparent; height: 44px; border-radius: 24px; }
 .toggle { display: flex; align-items: center; gap: 8px; padding: 0 16px; font-size: 14px; }
-.toggle-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
-.toggle[aria-pressed="false"] .toggle-dot { background: #7d8496; }
+.toggle-dot { position: relative; width: 23px; height: 13px; border-radius: 9px; background: #333e55; }
+.toggle-dot::after { content: ''; position: absolute; width: 9px; height: 9px; top: 2px; left: 12px; border-radius: 50%; background: var(--blue); }
+.toggle[aria-pressed="false"] .toggle-dot::after { left: 2px; background: #a9b0c1; }
 .help { width: 44px; font-size: 18px; }
 .scoreboard { position: relative; z-index: 2; width: min(340px, 100%); margin: 2px auto -58px; display: grid; grid-template-columns: 1fr 80px 1fr; align-items: center; gap: 20px; }
 .team-score { display: flex; align-items: center; gap: 14px; }
