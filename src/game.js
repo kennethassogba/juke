@@ -31,7 +31,7 @@ function newPuck() { return { ...body(.5, .5, .026), vx: .18, vy: .85, trail: []
 function newBots() {
   return MODELS.map((model, index) => ({
     model, index, paddle: index === 0 ? body(.15, .5, .065) : index === 1 ? body(.5, .15, .065) : body(.85, .5, .065),
-    action: null, thinking: false, latency: null, started: 0, cost: 0, knownCost: true,
+    action: null, aim: null, thinking: false, latency: null, started: 0, cost: 0, knownCost: true,
     goals: 0, conceded: 0, timer: 0, retry: 0, error: '',
   }));
 }
@@ -102,10 +102,11 @@ function schedule(bot, match, delay = 1100) {
 async function decide(bot, match) {
   if (!active || paused || bot.thinking || match !== serial) return;
   bot.thinking = true; bot.started = performance.now();
+  const snapshot = physicalState(bot);
   try {
     const response = await fetch('/api/decision', {
       method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ model: bot.model, state: physicalState(bot) }),
+      body: JSON.stringify({ model: bot.model, state: snapshot }),
     });
     const data = await response.json();
     if (match !== serial) return;
@@ -114,7 +115,10 @@ async function decide(bot, match) {
     else if (response.ok || response.status >= 500) bot.knownCost = false;
     if (response.ok && ACTIONS.has(data.action)) {
       bot.error = ''; bot.retry = 0;
-      if (active) bot.action = data.action;
+      if (active) {
+        bot.action = data.action;
+        bot.aim = resolveTarget(data.action, snapshot, bot.index);
+      }
     } else {
       bot.error = data.message || 'No model decision received.';
       const status = data.upstreamStatus || response.status;
@@ -141,15 +145,13 @@ function reflect(x) {
   const value = ((x - .05) % (span * 2) + span * 2) % (span * 2);
   return .05 + (value > span ? span * 2 - value : value);
 }
-function chosenTarget(bot) {
-  if (!bot.action) return bot.paddle;
-  const p = local(puck, bot.index);
-  const d = local(bot.paddle, bot.index);
-  const lane = bot.action === 'left' ? .30 : bot.action === 'right' ? .70 : .5;
-  if (['left', 'center', 'right'].includes(bot.action)) return world({ x: lane, y: .15 }, bot.index);
-  const y = bot.action === 'press' ? .28 : .15;
+function resolveTarget(action, snapshot, index) {
+  const p = snapshot.puck, d = snapshot.defender;
+  const lane = action === 'left' ? .30 : action === 'right' ? .70 : .5;
+  if (['left', 'center', 'right'].includes(action)) return world({ x: lane, y: .15 }, index);
+  const y = action === 'press' ? .28 : .15;
   const intercept = p.vy < -.02 ? reflect(p.x + p.vx * clamp((y - p.y) / p.vy, 0, 1.2)) : d.x;
-  return world({ x: clamp(intercept, .15, .85), y }, bot.index);
+  return world({ x: clamp(intercept, .15, .85), y }, index);
 }
 function move(paddle, aim, speed, dt) {
   const dx = aim.x - paddle.x, dy = aim.y - paddle.y;
@@ -191,7 +193,7 @@ function goal(side, now) {
 }
 function physics(dt, now) {
   move(player, target, 2.6, dt);
-  bots.forEach(bot => move(bot.paddle, chosenTarget(bot), .68, dt));
+  bots.forEach(bot => move(bot.paddle, bot.aim || bot.paddle, .68, dt));
   if (now < serveAt) return;
   puck.x += puck.vx * dt; puck.y += puck.vy * dt;
   collide(player, -1); bots.forEach(bot => collide(bot.paddle, bot.index));

@@ -5,7 +5,7 @@ const MODELS = Object.freeze({
 });
 
 const ACTIONS = Object.freeze(['intercept', 'press', 'left', 'center', 'right']);
-const SYSTEM_INSTRUCTIONS = 'You defend one goal in a four-paddle air hockey arena against one human. Coordinates are rotated so your goal is y=0, x=goalStart..goalEnd. Other goals are centered on the other walls. Use puck position and velocity and all paddles. Choose one allowed action. Intercept tracks the incoming puck at y=.15. Press advances to y=.28. Left, center, right guard x=.30,.50,.70 at y=.15. Return only the selected action.';
+const SYSTEM_INSTRUCTIONS = 'Defend your goal against one human in this four-paddle arena snapshot. Coordinates face your goal at y=0, x=goalStart..goalEnd. Other goals center on other walls. Intercept aims at the incoming puck crossing y=.15. Press aims at y=.28. Left, center, right guard x=.30,.50,.70 at y=.15. The selected target is held until your next API decision. Return only one allowed action.';
 const CHOICES = Object.freeze([
   { value: 'intercept', description: 'Meet the puck on its path when it is moving toward your goal.' },
   { value: 'press', description: 'Step toward the puck to shorten its angle.' },

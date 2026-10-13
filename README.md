@@ -10,7 +10,7 @@ Move the mouse, drag on the rink, or use the arrow keys while the rink is focuse
 
 ## Decisions
 
-All models receive the same compact physical state schema: puck position and velocity, the human paddle, their own paddle, both other defenders, goal bounds, bumpers, and score. Coordinates are rotated so each model defends y=0. Allowed actions are `intercept`, `press`, `left`, `center`, and `right`. The model selects the action; local physics executes it after the real API response arrives. No local model substitute is used.
+All models receive the same compact physical state schema: puck position and velocity, the human paddle, their own paddle, both other defenders, goal bounds, bumpers, and score. Coordinates are rotated so each model defends y=0. Allowed actions are `intercept`, `press`, `left`, `center`, and `right`. The model selects the action. Its target is computed once from the exact snapshot sent in that request, then held until the next real response. Local physics moves the defender toward that target. API delay makes the snapshot older before its action takes effect. No local model substitute is used.
 
 - `gpt-6-luna`: `/v1/decisions`, choice question.
 - `gpt-5.6-luna`: Responses API, strict structured output, reasoning effort `none`.
