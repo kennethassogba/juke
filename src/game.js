@@ -2,6 +2,7 @@ import { Arena3D, COLORS } from './scene.js';
 
 const MODELS = ['gpt-6-luna', 'gpt-5.6-luna', 'gpt-4.1-nano'];
 const NAMES = ['GPT-6 Luna', 'GPT-5.6 Luna', 'GPT-4.1 nano'];
+const INKS = ['#216e9d', '#a94523', '#96366f'];
 const ACTIONS = new Set(['intercept', 'press', 'left', 'center', 'right']);
 const BUMPERS = [{ x: .34, y: .46, radius: .045 }, { x: .66, y: .54, radius: .045 }];
 const GOAL_MIN = .375, GOAL_MAX = .625, MATCH_SECONDS = 40, WIN = 5;
@@ -24,6 +25,7 @@ let target = { x: .5, y: .85 };
 let player = body(.5, .85, .072);
 let puck = newPuck();
 let recorder = null, chunks = [], clip = null, clipUrl = null;
+let resumeAfterGuide = false;
 let bots = newBots();
 
 function body(x, y, radius) { return { x, y, vx: 0, vy: 0, radius }; }
@@ -287,28 +289,29 @@ function startRecording() {
 }
 function drawReplay() {
   const w = videoCanvas.width;
-  video.fillStyle = '#080a11'; video.fillRect(0, 0, w, 1920);
-  video.fillStyle = '#f3f6ff'; video.font = '900 italic 72px Arial'; video.textAlign = 'left'; video.fillText('JUKE', 48, 100);
-  video.font = '500 32px Arial'; video.fillStyle = '#aab3c5'; video.fillText('ONE PADDLE. THREE OPPONENTS.', 48, 158);
-  video.textAlign = 'right'; video.fillStyle = '#f3f6ff'; video.font = '700 56px Arial'; video.fillText(`${you} : ${opponents}`, w - 48, 100);
+  video.fillStyle = '#ffffff'; video.fillRect(0, 0, w, 1920);
+  video.fillStyle = '#1c2331'; video.font = '900 italic 72px Arial'; video.textAlign = 'left'; video.fillText('JUKE', 48, 100);
+  video.textAlign = 'right'; video.fillStyle = '#1c2331'; video.font = '700 56px Arial'; video.fillText(`${you} : ${opponents}`, w - 48, 100);
   video.font = '500 32px Arial'; video.fillText(active ? `${timeLeft}s` : result.toUpperCase(), w - 48, 158);
   video.drawImage(arena.replayFrame(), 0, 200, 1080, 1350);
   const labels = [[-.035, .5], [.5, -.035], [1.035, .5]];
   labels.forEach(([x, y], index) => {
     const point = arena.project(x, y, 2.0, true);
-    video.textAlign = 'center'; video.fillStyle = COLORS[index]; video.font = '700 28px Arial';
-    video.fillText(NAMES[index], point.x * 1080, 200 + point.y * 1350);
+    video.textAlign = 'center'; video.font = '700 28px Arial';
+    const labelWidth = video.measureText(NAMES[index]).width;
+    video.fillStyle = '#ffffff'; video.fillRect(point.x * 1080 - labelWidth / 2 - 8, 170 + point.y * 1350, labelWidth + 16, 38);
+    video.fillStyle = INKS[index]; video.fillText(NAMES[index], point.x * 1080, 200 + point.y * 1350);
   });
   bots.forEach((bot, index) => {
     const x = 48 + index * 340;
-    video.textAlign = 'left'; video.fillStyle = COLORS[index]; video.fillRect(x, 1560, 300, 4);
+    video.textAlign = 'left'; video.fillStyle = INKS[index]; video.fillRect(x, 1560, 300, 4);
     video.font = '700 34px Arial'; video.fillText(NAMES[index], x, 1610);
-    video.font = '500 30px monospace'; video.fillStyle = '#e1e7f5';
+    video.font = '500 30px monospace'; video.fillStyle = '#2f3b4f';
     video.fillText(`${bot.conceded}:${bot.goals}   ${bot.latency == null ? '-' : bot.latency}ms`, x, 1660);
     video.fillText(cost(bot), x, 1710);
-    video.fillStyle = '#9aa6bf'; video.font = '500 26px Arial'; video.fillText(bot.thinking ? 'READING' : bot.action?.toUpperCase() || 'WAITING', x, 1755);
+    video.fillStyle = '#596473'; video.font = '500 26px Arial'; video.fillText(bot.thinking ? 'READING' : bot.action?.toUpperCase() || 'WAITING', x, 1755);
   });
-  video.textAlign = 'left'; video.fillStyle = '#8c97ad'; video.font = '500 30px Arial'; video.fillText('juke.keff.uk', 48, 1860);
+  video.textAlign = 'left'; video.fillStyle = '#596473'; video.font = '500 30px Arial'; video.fillText('juke.keff.uk', 48, 1860);
 }
 
 function hud(now) {
@@ -358,9 +361,17 @@ replay.addEventListener('click', () => {
   const link = document.createElement('a'); link.href = clipUrl; link.download = `juke-3d-${new Date().toISOString().slice(0, 10)}.${clip.type.includes('mp4') ? 'mp4' : 'webm'}`;
   document.body.append(link); link.click(); link.remove();
 });
-$('#help').addEventListener('click', () => { $('#guide').showModal(); $('#close-guide').focus(); });
-$('#close-guide').addEventListener('click', () => { $('#guide').close(); $('#help').focus(); });
-$('#guide').addEventListener('click', event => { if (event.target === $('#guide')) { $('#guide').close(); $('#help').focus(); } });
+$('#help').addEventListener('click', () => {
+  resumeAfterGuide = active && !paused;
+  if (resumeAfterGuide) togglePause();
+  $('#guide').showModal(); $('#close-guide').focus();
+});
+$('#close-guide').addEventListener('click', () => $('#guide').close());
+$('#guide').addEventListener('click', event => { if (event.target === $('#guide')) $('#guide').close(); });
+$('#guide').addEventListener('close', () => {
+  if (resumeAfterGuide && active && paused) togglePause();
+  resumeAfterGuide = false; $('#help').focus();
+});
 window.addEventListener('blur', () => { pointerHeld = false; });
 requestAnimationFrame(frame);
 connect();

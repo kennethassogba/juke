@@ -38,8 +38,8 @@ function ring(parent, radius, thickness, y, color) {
 
 function paddle(scene, color) {
   const group = new THREE.Group();
-  const polymer = new THREE.MeshPhysicalMaterial({ color, roughness: .22, metalness: .24, clearcoat: 1, clearcoatRoughness: .15 });
-  const chrome = material('#d8dfed', { roughness: .15, metalness: .88 });
+  const polymer = new THREE.MeshPhysicalMaterial({ color, roughness: .4, metalness: .08, clearcoat: .3, clearcoatRoughness: .35 });
+  const chrome = material('#b5c0d3', { roughness: .34, metalness: .65 });
   cylinder(group, .69, .16, .10, chrome);
   cylinder(group, .63, .18, .19, polymer, .59);
   cylinder(group, .24, .34, .42, polymer, .20);
@@ -101,8 +101,8 @@ export class Arena3D {
     this.reducedMotion = reducedMotion;
     this.renderer = this.makeRenderer(canvas);
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color('#080a11');
-    this.scene.fog = new THREE.Fog('#080a11', 24, 65);
+    this.scene.background = new THREE.Color('#ffffff');
+    this.scene.fog = new THREE.Fog('#ffffff', 24, 65);
     this.scene.environment = environment();
     this.camera = new THREE.PerspectiveCamera(36, 1, .1, 100);
     this.replayCamera = new THREE.PerspectiveCamera(36, .8, .1, 100);
@@ -122,20 +122,20 @@ export class Arena3D {
     const warm = new THREE.DirectionalLight('#ffbba0', .65);
     warm.position.set(-8, 3, -3); this.scene.add(warm);
 
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), material('#070910', { roughness: .62, metalness: .2 }));
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), new THREE.ShadowMaterial({ opacity: .18 }));
     floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; this.scene.add(floor);
-    const cabinet = material('#171b28', { roughness: .31, metalness: .7 });
+    const cabinet = material('#171b28', { roughness: .5, metalness: .35 });
     box(this.scene, [10.65, .82, 10.65], [0, .83, 0], cabinet, .22);
     box(this.scene, [10.3, .15, 10.3], [0, 1.29, 0], material('#2f3d58', { metalness: .8, roughness: .22 }), .09);
     for (const x of [-3.7, 3.7]) for (const z of [-3.7, 3.7]) {
       box(this.scene, [.85, .68, .85], [x, .32, z], material('#171a23', { metalness: .8 }), .1);
     }
     const surface = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.MeshPhysicalMaterial({
-      map: surfaceTexture(), roughness: .32, metalness: .25, clearcoat: .75, clearcoatRoughness: .3,
+      map: surfaceTexture(), roughness: .6, metalness: .12, clearcoat: .25, clearcoatRoughness: .5,
     }));
     surface.rotation.x = -Math.PI / 2; surface.position.y = SURFACE;
     surface.receiveShadow = true; this.scene.add(surface);
-    const rail = material('#bcc7dc', { roughness: .19, metalness: .86 });
+    const rail = material('#a9b6cc', { roughness: .35, metalness: .6 });
     const trim = new THREE.MeshBasicMaterial({ color: '#d4e0ff', toneMapped: false });
     for (const side of [-1, 1]) for (const part of [-1, 1]) {
       box(this.scene, [.25, .36, 3.76], [side * 5.12, 1.55, part * 3.13], rail, .06);
