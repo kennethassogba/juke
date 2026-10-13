@@ -16,7 +16,7 @@ Model readiness is checked against the OpenAI Models API when a page loads. Matc
 
 ## Deploy
 
-Create a private GitHub repository named `juke`, then push this directory as its repository root. Set the three Actions secrets above. Create a Cloudflare API token scoped to the target account and zone, with Workers deployment access. The workflow deploys the `juke.keff.uk` custom domain on each push to `main` and on a manual run.
+The private repository is `kennethassogba/juke`. Add the three Actions secrets above. Create a Cloudflare API token scoped to the target account and zone, with Workers deployment access. The workflow deploys the `juke.keff.uk` custom domain on each push to `main` and on a manual run.
 
 The first production deployment requires `OPENAI_API_KEY` in GitHub Actions so Wrangler can attach it as a Worker secret. Cloudflare must have the `keff.uk` zone available to the account used by the workflow. Never add a key to `wrangler.jsonc`, `vars`, or browser code.
 
