@@ -190,6 +190,43 @@ h1 em, .help-dialog h2 em { color: var(--lime); font-family: var(--serif); font-
   .secondary-button { padding-inline: 3px; }
   .instructions { max-width: 155px; }
 }
+@media (max-width: 700px) {
+  .topbar, main, .site-footer { width: calc(100% - 24px); }
+  .topbar { height: 52px; }
+  .intro { display: block; padding-block: 16px 14px; }
+  h1 { font-size: clamp(1.6rem, 7.4vw, 2.4rem); }
+  h1 br { display: none; }
+  h1 em { display: block; }
+  .instructions { max-width: none; margin-top: 8px; font-size: .875rem; }
+  .match-controls { width: 100%; min-width: 0; margin-top: 12px; display: grid; grid-template-columns: auto minmax(0, 1fr) minmax(0, 1.5fr); gap: 8px; align-items: center; }
+  .duration { gap: 3px; }
+  .duration > span:last-child { display: none; }
+  .duration-number::after { content: 's'; font-size: .875rem; margin-left: 2px; font-weight: 400; }
+  .primary-button { padding-inline: 6px; gap: 4px; }
+  .control-row { gap: 5px; }
+  .secondary-button { padding-inline: 4px; }
+  .toggle-mark { margin-inline-end: 2px; }
+  .connection-status:not(:empty) { margin: 0 0 10px; padding: 7px 9px; }
+  .arena-grid { gap: 8px; }
+  .arena-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(145px, 1fr); grid-template-rows: auto auto auto; gap: 3px 10px; padding: 10px; }
+  .board-wrap { grid-column: 1; grid-row: 1 / 4; align-self: center; margin: 0; }
+  .board { aspect-ratio: 1.1 / 1; }
+  .arena-header { grid-column: 2; min-height: 0; display: block; }
+  .identity h2 { font-size: .875rem; }
+  .model-type { display: none; }
+  .model-state { margin-top: 5px; font-size: .875rem; }
+  .score-row { grid-column: 2; margin-top: 2px; letter-spacing: 0; }
+  .score { font-size: 1.125rem; }
+  .stats-row { grid-column: 2; grid-template-columns: 1fr auto; gap: 4px; margin-top: 0; padding-top: 5px; font-size: .875rem; }
+  .stats-row .action-readout { grid-column: 1; }
+  .stats-row > span:last-child { grid-column: 1 / 3; }
+  .stats-row small { font-size: .875rem; }
+  .arena-footnote { padding: 10px 0 14px; gap: 8px; }
+  #board-hint { display: none; }
+  .replay-button { width: 100%; }
+  .replay-note { margin: 0 0 12px; }
+  .site-footer { min-height: 52px; }
+}
 @media (forced-colors: active) {
   .primary-button, .secondary-button, .replay-button, .arena-card, .icon-button { border: 1px solid ButtonText; }
   .model-state::before, .toggle-mark { border: 1px solid currentColor; }
