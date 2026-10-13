@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 8765)
-Total output lines: 937
-
 const ACTIONS = new Set(['intercept', 'press', 'left', 'center', 'right']);
 const MODEL_IDS = ['gpt-6-luna', 'gpt-5.6-luna', 'gpt-4.1-nano'];
 const GOAL_START = 0.375;
@@ -328,7 +325,300 @@ function drawBoard(context, width, height, table, index, isReplay = false) {
     context.fill();
   }
 
-  for (co…2765 tokens truncated…cept: 'application/json' },
+  for (const [y, color] of [[0, '#d1fb65'], [1, '#f0eee2']]) {
+    const first = project(layout, GOAL_START, y);
+    const last = project(layout, GOAL_END, y);
+    context.beginPath();
+    context.moveTo(first.x, first.y);
+    context.lineTo(last.x, last.y);
+    context.strokeStyle = color;
+    context.lineWidth = 4;
+    context.lineCap = 'round';
+    context.stroke();
+    context.lineCap = 'butt';
+  }
+
+  if (bumpersOn) {
+    for (const bumper of bumperLayout) {
+      const point = project(layout, bumper.x, bumper.y);
+      const size = bumper.radius * Math.min(layout.a, layout.b) * 2;
+      context.beginPath();
+      context.ellipse(point.x + 2, point.y + 3, size * 1.15, size * 0.72, 0, 0, Math.PI * 2);
+      context.fillStyle = 'rgba(3, 11, 7, .38)';
+      context.fill();
+      context.beginPath();
+      context.ellipse(point.x, point.y, size, size * 0.65, 0, 0, Math.PI * 2);
+      context.fillStyle = '#f5a16d';
+      context.fill();
+      context.lineWidth = 1.5;
+      context.strokeStyle = '#ffd5a4';
+      context.stroke();
+      context.beginPath();
+      context.ellipse(point.x, point.y - 1, size * 0.55, size * 0.31, 0, Math.PI, Math.PI * 2);
+      context.strokeStyle = 'rgba(255, 249, 227, .8)';
+      context.stroke();
+    }
+  }
+
+  if (table.puck.trail.length > 1 && !reducedMotion.matches) {
+    for (let i = 0; i < table.puck.trail.length - 1; i += 1) {
+      const alpha = ((i + 1) / table.puck.trail.length) * 0.16;
+      const from = project(layout, table.puck.trail[i].x, table.puck.trail[i].y);
+      const to = project(layout, table.puck.trail[i + 1].x, table.puck.trail[i + 1].y);
+      context.beginPath();
+      context.moveTo(from.x, from.y);
+      context.lineTo(to.x, to.y);
+      context.strokeStyle = `rgba(242, 241, 222, ${alpha})`;
+      context.lineWidth = 3;
+      context.stroke();
+    }
+  }
+
+  drawDisk(context, layout, table.player, table.player.radius, '#f1eee2', '#fffdf2');
+  drawDisk(context, layout, table.defender, table.defender.radius, ['#ac9cff', '#d1fb65', '#ff8067'][index], '#fff1d7');
+  drawDisk(context, layout, table.puck, table.puck.radius, '#f7edcb', '#fffdf3');
+
+  if (table.finished && isReplay) {
+    context.fillStyle = 'rgba(10, 17, 12, .52)';
+    pathTable(context, layout);
+    context.fill();
+    const center = project(layout, 0.5, 0.5);
+    context.font = `700 ${Math.max(14, width * 0.026)}px Manrope, system-ui, sans-serif`;
+    context.textAlign = 'center';
+    context.fillStyle = '#f1f1e9';
+    context.fillText('TABLE FINISHED', center.x, center.y + 5);
+  }
+  context.restore();
+}
+
+function setPaddleTarget(event, canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const width = canvas.width;
+  const height = canvas.height;
+  const scaleX = width / rect.width;
+  const scaleY = height / rect.height;
+  const layout = boardLayout(width, height);
+  const point = unproject(layout, (event.clientX - rect.left) * scaleX, (event.clientY - rect.top) * scaleY);
+  playerTarget = { x: clamp(point.x, 0.075, 0.925), y: clamp(point.y, 0.57, 0.94) };
+}
+
+function bindCanvas(canvas) {
+  canvas.addEventListener('pointerdown', (event) => {
+    if (!active || paused) return;
+    pointerHeld = true;
+    canvas.focus({ preventScroll: true });
+    if (event.pointerType === 'mouse' || event.pointerType === 'pen') canvas.setPointerCapture(event.pointerId);
+    setPaddleTarget(event, canvas);
+    event.preventDefault();
+  });
+  canvas.addEventListener('pointermove', (event) => {
+    if (!pointerHeld || !active || paused) return;
+    setPaddleTarget(event, canvas);
+    event.preventDefault();
+  });
+  const release = (event) => {
+    pointerHeld = false;
+    if (canvas.hasPointerCapture?.(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+  };
+  canvas.addEventListener('pointerup', release);
+  canvas.addEventListener('pointercancel', release);
+  canvas.addEventListener('keydown', (event) => {
+    const vectors = {
+      ArrowLeft: [-0.055, 0], ArrowRight: [0.055, 0], ArrowUp: [0, -0.04], ArrowDown: [0, 0.04],
+      a: [-0.055, 0], d: [0.055, 0], w: [0, -0.04], s: [0, 0.04],
+    };
+    const vector = vectors[event.key];
+    if (!vector || !active || paused) return;
+    playerTarget = {
+      x: clamp(playerTarget.x + vector[0], 0.075, 0.925),
+      y: clamp(playerTarget.y + vector[1], 0.57, 0.94),
+    };
+    event.preventDefault();
+  });
+}
+
+cards.forEach((card) => bindCanvas(card.canvas));
+
+function stepPaddle(paddle, target, speed, minY, maxY, dt) {
+  const dx = target.x - paddle.x;
+  const dy = target.y - paddle.y;
+  const distance = Math.hypot(dx, dy);
+  const maxStep = speed * dt;
+  const ratio = distance > maxStep && distance > 0 ? maxStep / distance : 1;
+  const nextX = clamp(paddle.x + dx * ratio, 0.08, 0.92);
+  const nextY = clamp(paddle.y + dy * ratio, minY, maxY);
+  paddle.vx = (nextX - paddle.x) / dt;
+  paddle.vy = (nextY - paddle.y) / dt;
+  paddle.x = nextX;
+  paddle.y = nextY;
+}
+
+function reflectedX(x) {
+  let result = x;
+  while (result < 0.05 || result > 0.95) {
+    if (result < 0.05) result = 0.1 - result;
+    if (result > 0.95) result = 1.9 - result;
+  }
+  return result;
+}
+
+function defenderTarget(table) {
+  if (!table.action) return { x: table.defender.x, y: table.defender.y };
+  const puck = table.puck;
+  if (table.action === 'left') return { x: 0.24, y: 0.17 };
+  if (table.action === 'center') return { x: 0.5, y: 0.17 };
+  if (table.action === 'right') return { x: 0.76, y: 0.17 };
+  if (table.action === 'press') {
+    const predict = puck.vy < -0.04 ? puck.x + puck.vx * clamp((0.31 - puck.y) / puck.vy, 0, 0.42) : puck.x;
+    return { x: reflectedX(predict), y: 0.31 };
+  }
+  const time = puck.vy < -0.06 ? clamp((0.16 - puck.y) / puck.vy, 0, 0.5) : 0;
+  return { x: reflectedX(puck.x + puck.vx * time), y: 0.16 };
+}
+
+function hitPaddle(puck, paddle, dt) {
+  const dx = puck.x - paddle.x;
+  const dy = puck.y - paddle.y;
+  const distance = Math.hypot(dx, dy);
+  const safeDistance = puck.radius + paddle.radius;
+  if (distance >= safeDistance || distance === 0) return false;
+  const nx = dx / distance;
+  const ny = dy / distance;
+  puck.x = paddle.x + nx * (safeDistance + 0.002);
+  puck.y = paddle.y + ny * (safeDistance + 0.002);
+  const speed = clamp(Math.hypot(puck.vx, puck.vy) + 0.2, 0.72, 1.78);
+  const relative = (paddle.vx * nx + paddle.vy * ny) * 0.18;
+  puck.vx = clamp(nx * speed + paddle.vx * 0.1, -1.72, 1.72);
+  puck.vy = clamp(ny * speed + paddle.vy * 0.1 + relative, -1.72, 1.72);
+  if (Math.abs(puck.vy) < 0.48) puck.vy = Math.sign(ny || -1) * 0.48;
+  return true;
+}
+
+function hitBumper(puck, bumper) {
+  const dx = puck.x - bumper.x;
+  const dy = puck.y - bumper.y;
+  const distance = Math.hypot(dx, dy);
+  const safeDistance = puck.radius + bumper.radius;
+  if (distance >= safeDistance || distance === 0) return false;
+  const nx = dx / distance;
+  const ny = dy / distance;
+  puck.x = bumper.x + nx * (safeDistance + 0.002);
+  puck.y = bumper.y + ny * (safeDistance + 0.002);
+  const dot = puck.vx * nx + puck.vy * ny;
+  puck.vx -= 1.82 * dot * nx;
+  puck.vy -= 1.82 * dot * ny;
+  return true;
+}
+
+function serveAfterScore(table, direction) {
+  const lane = clamp(table.puck.x, 0.4, 0.6);
+  table.puck = servePuck(direction, lane - 0.5);
+}
+
+function score(table, playerScored) {
+  if (playerScored) {
+    table.playerScore += 1;
+    serveAfterScore(table, -1);
+  } else {
+    table.defenderScore += 1;
+    serveAfterScore(table, 1);
+  }
+  table.celebrationUntil = performance.now() + 700;
+  updateStats(table.index);
+  setStatus(`${modelShortName(table.index)}: ${playerScored ? 'you scored' : 'model scored'}, ${table.playerScore} to ${table.defenderScore}.`);
+  if (table.playerScore >= WIN_SCORE || table.defenderScore >= WIN_SCORE) {
+    table.finished = true;
+    setCardStatus(table.index, 'done', table.playerScore > table.defenderScore ? 'YOU WIN' : 'MODEL WINS');
+    if (tables.every((entry) => entry.finished)) finishMatch('Three tables played to three.');
+  }
+}
+
+function stepTable(table, dt) {
+  if (table.finished) return;
+  stepPaddle(table.player, playerTarget, 1.8, 0.58, 0.94, dt);
+  stepPaddle(table.defender, defenderTarget(table), 1.36, 0.075, 0.39, dt);
+  const puck = table.puck;
+  puck.x += puck.vx * dt;
+  puck.y += puck.vy * dt;
+  puck.vx *= 0.9993;
+  puck.vy *= 0.9993;
+  puck.trail.push({ x: puck.x, y: puck.y });
+  if (puck.trail.length > 8) puck.trail.shift();
+
+  if (puck.x < puck.radius) { puck.x = puck.radius; puck.vx = Math.abs(puck.vx) * 0.94; }
+  if (puck.x > 1 - puck.radius) { puck.x = 1 - puck.radius; puck.vx = -Math.abs(puck.vx) * 0.94; }
+  if (puck.y < puck.radius) {
+    if (puck.x > GOAL_START && puck.x < GOAL_END) return score(table, true);
+    puck.y = puck.radius;
+    puck.vy = Math.abs(puck.vy) * 0.9;
+  }
+  if (puck.y > 1 - puck.radius) {
+    if (puck.x > GOAL_START && puck.x < GOAL_END) return score(table, false);
+    puck.y = 1 - puck.radius;
+    puck.vy = -Math.abs(puck.vy) * 0.9;
+  }
+  if (bumpersOn) for (const bumper of bumperLayout) hitBumper(puck, bumper);
+  hitPaddle(puck, table.player, dt);
+  hitPaddle(puck, table.defender, dt);
+  const speed = Math.hypot(puck.vx, puck.vy);
+  if (speed > 1.78) {
+    puck.vx *= 1.78 / speed;
+    puck.vy *= 1.78 / speed;
+  } else if (speed < 0.38) {
+    const scale = 0.5 / Math.max(speed, 0.1);
+    puck.vx *= scale;
+    puck.vy *= scale;
+  }
+}
+
+function gameState(table) {
+  return {
+    version: 1,
+    bounds: { goalStart: GOAL_START, goalEnd: GOAL_END },
+    score: { player: table.playerScore, defender: table.defenderScore },
+    puck: { x: round(table.puck.x), y: round(table.puck.y), vx: round(table.puck.vx), vy: round(table.puck.vy), radius: table.puck.radius },
+    player: { x: round(table.player.x), y: round(table.player.y), radius: table.player.radius },
+    defender: { x: round(table.defender.x), y: round(table.defender.y), radius: table.defender.radius },
+    bumpersOn,
+    bumpers: bumperLayout.map(({ x, y, radius }) => ({ x, y, radius })),
+  };
+}
+
+function round(number) {
+  return Math.round(number * 1000) / 1000;
+}
+
+function countUsage(table, usage) {
+  if (usage && Number.isFinite(usage.costUsd) && usage.costUsd >= 0) {
+    table.totalCost += usage.costUsd;
+  } else {
+    table.costKnown = false;
+  }
+  updateStats(table.index);
+}
+
+function retryDelay(response) {
+  const value = response.headers.get('retry-after');
+  if (!value) return RETRY_GAP;
+  const seconds = Number(value);
+  const wait = Number.isFinite(seconds) ? seconds * 1000 : Date.parse(value) - Date.now();
+  return Number.isFinite(wait) ? clamp(wait, RETRY_GAP, 60_000) : RETRY_GAP;
+}
+
+async function askModel(table, matchId) {
+  if (!active || paused || table.finished || table.isThinking || matchId !== matchNumber) return;
+  table.isThinking = true;
+  table.thoughtStarted = performance.now();
+  table.lastError = '';
+  setCardStatus(table.index, 'thinking', 'THINKING');
+  updateStats(table.index);
+  syncControls();
+  const started = performance.now();
+
+  try {
+    const response = await fetch('/api/decision', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({ model: tableModel(table.index), state: gameState(table) }),
     });
     let result;
