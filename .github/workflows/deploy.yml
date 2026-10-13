@@ -1,41 +1,22 @@
-name: Deploy JUKE
+name: Check JUKE
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: read
 
-concurrency:
-  group: juke-production
-  cancel-in-progress: true
-
 jobs:
-  deploy:
+  check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
-      - name: Check Worker and game scripts
-        run: npm run check
-      - name: Prepare Worker secret file
-        shell: bash
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          if [[ -z "$OPENAI_API_KEY" ]]; then
-            echo "Add OPENAI_API_KEY to the repository's Actions secrets."
-            exit 1
-          fi
-          printf 'OPENAI_API_KEY=%s\n' "$OPENAI_API_KEY" > "$RUNNER_TEMP/juke-worker-secrets.env"
-      - name: Deploy Worker and assets
-        uses: cloudflare/wrangler-action@v4
+      - uses: actions/setup-node@v6
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --secrets-file ${{ runner.temp }}/juke-worker-secrets.env
-      - name: Remove temporary secret file
-        if: always()
-        run: rm -f "$RUNNER_TEMP/juke-worker-secrets.env"
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npx wrangler deploy --dry-run
