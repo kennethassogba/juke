@@ -186,7 +186,7 @@ export class Arena3D {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.22;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     return renderer;
   }
 
@@ -238,6 +238,7 @@ export class Arena3D {
     positions.needsUpdate = true; this.trail.geometry.setDrawRange(0, trail.length);
     this.trail.visible = !this.reducedMotion.matches && trail.length > 1;
     const age = (now - this.pulseTime) / 750;
+    this.pulse.visible = Boolean(this.pulseTime && age < 1);
     this.pulse.material.opacity = this.pulseTime && age < 1 ? (1 - age) * .65 : 0;
     this.pulse.scale.setScalar(this.reducedMotion.matches ? 1 : 1 + age * 2);
     this.renderer.render(this.scene, this.camera);
