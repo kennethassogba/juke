@@ -203,8 +203,8 @@ function fitCanvas(canvas) {
 
 function project(layout, x, y) {
   return {
-    x: layout.cx + (x - 0.5) * layout.a * 2 - (y - 0.5) * layout.a * 2,
-    y: layout.cy + (x + y - 1) * layout.b * 2,
+    x: layout.cx + (x - y) * layout.a,
+    y: layout.cy + (x + y - 1) * layout.b,
   };
 }
 
@@ -224,10 +224,10 @@ function boardLayout(width, height) {
 }
 
 function pathTable(context, layout, inset = 0, bottom = 0) {
-  const top = project(layout, 0.5, 0);
-  const right = project(layout, 1, 0.5);
-  const lower = project(layout, 0.5, 1);
-  const left = project(layout, 0, 0.5);
+  const top = project(layout, 0, 0);
+  const right = project(layout, 1, 0);
+  const lower = project(layout, 1, 1);
+  const left = project(layout, 0, 1);
   const points = [top, right, lower, left].map((point) => ({ x: point.x, y: point.y + bottom }));
   context.beginPath();
   context.moveTo(points[0].x, points[0].y);
@@ -270,9 +270,9 @@ function drawBoard(context, width, height, table, index, isReplay = false) {
   context.beginPath();
   context.moveTo(points[2].x, points[2].y);
   context.lineTo(points[3].x, points[3].y);
-  const leftTop = project(layout, 0.5, 0);
+  const leftTop = project(layout, 0, 0);
   context.lineTo(leftTop.x, leftTop.y + 12);
-  const rightTop = project(layout, 1, 0.5);
+  const rightTop = project(layout, 1, 0);
   context.lineTo(rightTop.x, rightTop.y + 12);
   context.closePath();
   context.fillStyle = '#18231b';
@@ -288,7 +288,7 @@ function drawBoard(context, width, height, table, index, isReplay = false) {
   context.strokeStyle = '#24372a';
   context.stroke();
 
-  const topRail = [project(layout, 0, 0.5), project(layout, 0.5, 0), project(layout, 1, 0.5)];
+  const topRail = [project(layout, 0, 1), project(layout, 0, 0), project(layout, 1, 0)];
   context.beginPath();
   context.moveTo(topRail[0].x, topRail[0].y);
   context.lineTo(topRail[1].x, topRail[1].y);
@@ -296,7 +296,7 @@ function drawBoard(context, width, height, table, index, isReplay = false) {
   context.strokeStyle = 'rgba(204, 253, 177, .65)';
   context.lineWidth = 1.7;
   context.stroke();
-  const bottomRail = [project(layout, 0, 0.5), project(layout, 0.5, 1), project(layout, 1, 0.5)];
+  const bottomRail = [project(layout, 0, 1), project(layout, 1, 1), project(layout, 1, 0)];
   context.beginPath();
   context.moveTo(bottomRail[0].x, bottomRail[0].y);
   context.lineTo(bottomRail[1].x, bottomRail[1].y);
