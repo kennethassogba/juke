@@ -186,3 +186,56 @@ input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) {
  [data-thinking="true"] .avatar-body, [data-thinking="true"] .face { transform: none; }
 }
+/* Match notices sit on the rink, without reserving an empty page row. */
+.stage #notice { position: absolute; bottom: 8px; left: 14px; right: 14px; z-index: 3; margin: 0; min-height: 0; pointer-events: none; }
+.stage #notice:not(:empty) { width: fit-content; max-width: calc(100% - 28px); margin-inline: auto; padding: 4px 8px; border-radius: 8px; background: #ffffffef; }
+@media (max-width: 700px), (max-width: 1000px) and (max-height: 500px) {
+ html { height: 100%; min-height: 0; overflow: hidden; overscroll-behavior: none; }
+ body { height: 100dvh; min-height: 0; overflow: hidden; overscroll-behavior: none; display: grid; grid-template-rows: 50px minmax(0, 1fr) 44px; padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(12px, env(safe-area-inset-left)); }
+ .topbar, main, footer { width: 100%; min-width: 0; margin: 0; }
+ .topbar { height: 50px; }
+ main { position: relative; min-height: 0; display: grid; grid-template-rows: 32px minmax(0, 1fr) auto 44px 44px; row-gap: 4px; }
+ .scoreboard { margin: 0 auto; width: min(280px, 100%); height: 32px; }
+ .team-score b { font-size: 30px; }
+ .stage { height: auto; min-height: 0; margin: 0 -12px; }
+ .opponents { width: 100%; gap: 10px; margin: 0; }
+ .opponents article { padding-top: 4px; }
+ .persona { height: 30px; margin: 0 0 2px; }
+ .persona .avatar { width: 30px; height: 30px; }
+ .persona span { display: none; }
+ .opponent-heading { display: block; padding: 0; }
+ .opponent-heading h2 { min-height: 0; font-size: 14px; line-height: 1.4; }
+ .opponent-heading b { position: absolute; right: 0; top: -30px; margin: 0; font-size: 18px; line-height: 28px; }
+ .model-kind { min-height: 24px; font-size: 14px; line-height: 24px; }
+ button.model-kind { min-height: 24px; }
+ .decision { margin-top: 1px; line-height: 20px; }
+ .measurements { display: grid; gap: 0; margin-top: 2px; line-height: 18px; }
+ .transport { margin: 0; gap: 6px; }
+ .transport button { padding-inline: 12px; }
+ .daily-play { gap: 12px; flex-wrap: nowrap; min-width: 0; }
+ .daily-play .text-button { white-space: nowrap; }
+ footer { min-height: 0; height: 44px; flex-wrap: nowrap; gap: 4px; }
+ footer nav { gap: 0; }
+ .github-link { gap: 4px; }
+ .github-link .icon { width: 17px; }
+ .install-nudge { position: absolute; z-index: 5; top: 40px; left: 0; right: 0; width: min(450px, 100%); margin: 0 auto; padding: 6px 8px; background: white; box-shadow: 0 6px 24px #1c233118; }
+ .gesture-hint { bottom: 8px; }
+ .stage:has(#notice:not(:empty)) .gesture-hint { visibility: hidden; }
+ #result { margin-bottom: 8px; padding: 6px 18px; }
+ #result-title { font-size: 20px; }
+ #result-score { font-size: 30px; }
+ dialog { max-height: calc(100dvh - 24px); scrollbar-width: none; }
+ dialog::-webkit-scrollbar { display: none; }
+}
+@media (max-width: 1000px) and (max-height: 500px) and (orientation: landscape) {
+ body { grid-template-rows: 44px minmax(0, 1fr) 44px; }
+ .topbar { height: 44px; }
+ main { grid-template-columns: minmax(0, 1fr) minmax(290px, 42%); grid-template-rows: minmax(0, 1fr) 44px 44px; column-gap: 12px; }
+ .scoreboard { position: absolute; left: 0; top: 4px; width: calc(58% - 16px); z-index: 3; }
+ .stage { grid-column: 1; grid-row: 1 / 4; margin: 0; }
+ .opponents { grid-column: 2; grid-row: 1; align-self: end; }
+ .transport { grid-column: 2; grid-row: 2; }
+ .daily-play { grid-column: 2; grid-row: 3; }
+ .install-nudge { right: auto; width: calc(58% - 16px); top: 40px; }
+ .gesture-hint { bottom: 0; }
+}
