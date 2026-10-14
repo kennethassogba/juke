@@ -395,7 +395,7 @@ function updateBudget(value) {
   dailyBudget = value;
   const money = amount => `$${amount.toFixed(2)}`;
   $('#budget-summary').textContent = `${money(value.remainingUsd)} / $0.50 left today`;
-  $('#budget-detail').textContent = `${money(value.usedUsd)} used · ${money(value.remainingUsd)} available`;
+  $('#budget-detail').textContent = `$${value.usedUsd.toFixed(5)} used · $${value.remainingUsd.toFixed(5)} available`;
   $('#budget-meter').value = value.limitUsd - value.remainingUsd;
   $('#budget-reset').textContent = `Resets ${new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(value.resetAt))} your time.`;
   $('#budget-reserved').hidden = !(value.heldUsd + value.uncertainUsd > 0);
