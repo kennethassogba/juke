@@ -9,6 +9,10 @@
   <meta property="og:description" content="Play air hockey against three OpenAI models in a 3D arena.">
   <meta property="og:url" content="https://juke.keff.uk">
   <title>JUKE: one paddle, three AI opponents</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/app.js"></script>
@@ -41,18 +45,18 @@
       <span id="gesture-hint" class="gesture-hint">Drag your paddle</span>
     </section>
     <div class="opponents" aria-label="Live opponent decisions">
-      <article data-opponent="0">
-        <div class="opponent-heading"><h2>GPT-6 Luna</h2><b data-score aria-label="You versus GPT-6 Luna" title="You : opponent">0:0</b></div>
+      <article data-opponent="0"><div class="persona"><svg class="avatar" viewBox="0 0 64 64" role="img" aria-label="Pip"><g class="avatar-body"><path d="M16 20 13 5 27 14m10 0L51 5l-3 15"/><rect x="12" y="14" width="40" height="40" rx="18"/><g class="face"><ellipse class="cheek" cx="21" cy="38" rx="5" ry="3"/><ellipse class="cheek" cx="43" cy="38" rx="5" ry="3"/><path class="eyes" d="M24 29v4m16-4v4"/><path class="smile" d="M28 38q4 5 8 0"/></g></g></svg><span>Pip</span></div>
+        <div class="opponent-heading"><h2>GPT-6 Luna</h2><button class="model-kind text-button" data-open="experiment">Decisions ↗</button><b data-score aria-label="You versus GPT-6 Luna" title="You : opponent">0:0</b></div>
         <div class="decision" data-action>Connecting</div>
         <div class="measurements"><span data-latency>- ms</span><span data-cost>$0.00000</span></div>
       </article>
-      <article data-opponent="1">
-        <div class="opponent-heading"><h2>GPT-5.6 Luna</h2><b data-score aria-label="You versus GPT-5.6 Luna" title="You : opponent">0:0</b></div>
+      <article data-opponent="1"><div class="persona"><svg class="avatar" viewBox="0 0 64 64" role="img" aria-label="Momo"><g class="avatar-body"><path d="M21 17C10-5 29-5 29 16m6 0C35-5 54-5 43 18"/><rect x="12" y="14" width="40" height="40" rx="18"/><g class="face"><ellipse class="cheek" cx="21" cy="38" rx="5" ry="3"/><ellipse class="cheek" cx="43" cy="38" rx="5" ry="3"/><path class="eyes" d="M24 29v4m16-4v4"/><path class="smile" d="M28 38q4 5 8 0"/></g></g></svg><span>Momo</span></div>
+        <div class="opponent-heading"><h2>GPT-5.6 Luna</h2><span class="model-kind">Responses</span><b data-score aria-label="You versus GPT-5.6 Luna" title="You : opponent">0:0</b></div>
         <div class="decision" data-action>Connecting</div>
         <div class="measurements"><span data-latency>- ms</span><span data-cost>$0.00000</span></div>
       </article>
-      <article data-opponent="2">
-        <div class="opponent-heading"><h2>GPT-4.1 nano</h2><b data-score aria-label="You versus GPT-4.1 nano" title="You : opponent">0:0</b></div>
+      <article data-opponent="2"><div class="persona"><svg class="avatar" viewBox="0 0 64 64" role="img" aria-label="Bibi"><g class="avatar-body"><path d="M17 18C1 5 5 32 15 30m34 0C61 32 65 5 47 18"/><rect x="12" y="14" width="40" height="40" rx="18"/><g class="face"><ellipse class="cheek" cx="21" cy="38" rx="5" ry="3"/><ellipse class="cheek" cx="43" cy="38" rx="5" ry="3"/><path class="eyes" d="M24 29v4m16-4v4"/><path class="smile" d="M28 38q4 5 8 0"/></g></g></svg><span>Bibi</span></div>
+        <div class="opponent-heading"><h2>GPT-4.1 nano</h2><span class="model-kind">Responses</span><b data-score aria-label="You versus GPT-4.1 nano" title="You : opponent">0:0</b></div>
         <div class="decision" data-action>Connecting</div>
         <div class="measurements"><span data-latency>- ms</span><span data-cost>$0.00000</span></div>
       </article>
@@ -60,12 +64,15 @@
     <div class="transport">
       <button id="pause" type="button" disabled>Pause</button>
       <button id="restart" type="button" hidden>End match</button>
-      <button id="replay" type="button" disabled>Save replay <span aria-hidden="true">↓</span></button>
+      <button id="replay" type="button" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m-4 4 4-4 4 4M7 11H5v10h14V11h-2"/></svg>Share replay</button>
     </div>
+    <div class="daily-play"><button id="budget-info" class="text-button" aria-haspopup="dialog"><span id="budget-summary">$0.50 daily play</span><svg class="icon small" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg></button><button class="text-button" data-open="newsletter">Get updates</button></div>
+    <aside id="install-nudge" class="install-nudge" hidden aria-label="Install JUKE"><img src="/icons/icon-192.png" width="40" height="40" alt=""><span>Keep JUKE on your home screen</span><button id="install" class="text-button">Add</button><button id="dismiss-install" class="icon-button" aria-label="Dismiss install suggestion">×</button></aside>
     <p id="notice" role="status" aria-live="polite"></p>
   </main>
   <footer>
     <a class="keff" href="https://keff.uk" target="_blank" rel="noreferrer" aria-label="k_eff">k<span>_</span>eff</a>
+    <a class="github-link" href="https://github.com/kennethassogba/juke" target="_blank" rel="noreferrer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg>Star on GitHub</a>
     <nav aria-label="Social links">
       <a href="https://www.linkedin.com/company/keffuk" target="_blank" rel="noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.4 8.3H2.1V22h3.3V8.3ZM3.7 2a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8ZM22 13.4c0-3.7-2-5.4-4.5-5.4-2.1 0-3 1.2-3.5 2V8.3h-3.3V22H14v-7.6c0-2 1-3.1 2.5-3.1s2.2 1.1 2.2 3.1V22H22v-8.6Z"/></svg></a>
       <a href="https://get.keff.uk" target="_blank" rel="noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="insta-dot" cx="17.5" cy="6.5" r="1"/></svg></a>
@@ -74,10 +81,55 @@
   <dialog id="guide" aria-labelledby="guide-title">
     <button id="close-guide" class="close" aria-label="Close guide" type="button">×</button>
     <h2 id="guide-title">How to play</h2>
-    <p>Drag on the rink or move your mouse. Your white paddle faces three model defenders. Aim at their coloured goals and protect yours.</p>
-    <p>First to five, or 40 seconds. Opponent scores read you:AI. Your own goals count in the AI total.</p>
-    <p>Each model receives the puck, all four paddles, goals and bumpers. Decisions arrive from OpenAI while the game keeps moving. Latency is measured; USD costs use returned token usage.</p>
-    <p>Save a silent vertical replay after the match.</p>
+    <p>Move the white paddle with your mouse, finger or arrow keys. Hit the puck into any coloured goal and protect your own.</p>
+    <p>You play against all three opponents at once. First to 5 wins. After 40 seconds, the higher score wins.</p>
+    <p>Each opponent chooses its next move through a real API call. You can see how long it takes below the rink.</p>
+    <button class="text-button" data-open="experiment">About the experiment <span aria-hidden="true">↗</span></button>
+  </dialog>
+  <dialog id="experiment" aria-labelledby="experiment-title">
+    <button class="close" data-close aria-label="Close experiment">×</button>
+    <h2 id="experiment-title">Can a decision model keep up?</h2>
+    <p>JUKE explores how API response time changes a game. Three models see the same kind of physical state and choose from five moves.</p>
+    <dl class="model-config"><dt>GPT-6 Luna</dt><dd>Decisions API · <code>choice</code> question. Returns one allowed move directly.</dd><dt>GPT-5.6 Luna</dt><dd>Responses API · structured JSON · reasoning set to <code>none</code>.</dd><dt>GPT-4.1 nano</dt><dd>Responses API · structured JSON.</dd></dl>
+    <p>The puck keeps moving while they decide. Their moves take effect when the response arrives. Costs use actual token usage.</p>
+    <p>The idea comes from decision models such as <a href="https://openrouter.ai/typesafe/jev-1.13" target="_blank" rel="noreferrer">Jev by TypeSafe</a>. This arena runs the three OpenAI models listed above.</p>
+    <a class="text-link" href="https://github.com/kennethassogba/juke#how-it-works" target="_blank" rel="noreferrer">Read the architecture ↗</a>
+  </dialog>
+  <dialog id="allowance" aria-labelledby="allowance-title">
+    <button class="close" data-close aria-label="Close daily allowance">×</button>
+    <h2 id="allowance-title">Your daily play</h2>
+    <p>keff covers up to $0.50 of model calls per browser each day. Playing is free.</p>
+    <p id="budget-detail">Loading allowance…</p><progress id="budget-meter" max="0.5" value="0" aria-label="Daily allowance used"></progress>
+    <p id="budget-reset"></p>
+    <p id="budget-reserved" hidden></p>
+    <p>A browser cookie keeps your allowance shared across tabs. It resets at midnight UTC.</p>
+    <button class="text-button" data-open="newsletter">Get JUKE updates ↗</button>
+  </dialog>
+  <dialog id="newsletter" aria-labelledby="newsletter-title">
+    <button class="close" data-close aria-label="Close mailing list">×</button>
+    <h2 id="newsletter-title">Stay in the loop</h2>
+    <p>Get news about JUKE and new opponents.</p>
+    <form id="signup-form">
+      <label for="signup-email">Email</label><input id="signup-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required>
+      <label class="consent"><input type="checkbox" name="consent" required><span>I agree to receive JUKE updates from keff by email.</span></label>
+      <div hidden aria-hidden="true"><input name="website" tabindex="-1" autocomplete="off"></div>
+      <button class="play" type="submit">Join the list</button>
+    </form>
+    <p id="signup-status" role="status"></p>
+    <button id="unsubscribe" class="text-button" hidden>Leave the list</button>
+    <p class="privacy-note">keff stores your email and consent in Cloudflare. You can leave the list here after signing up, or through the link in future emails.</p>
+  </dialog>
+  <dialog id="install-guide" aria-labelledby="install-title">
+    <button class="close" data-close aria-label="Close install instructions">×</button>
+    <h2 id="install-title">Add JUKE</h2>
+    <p id="install-instructions"></p>
+    <p>Launch from your home screen. An internet connection is needed for the AI opponents.</p>
+  </dialog>
+  <dialog id="share-guide" aria-labelledby="share-title">
+    <button class="close" data-close aria-label="Close replay sharing">×</button>
+    <h2 id="share-title">Share your replay</h2>
+    <p>This browser can’t share video files directly. Save the clip, then attach it in your favourite app.</p>
+    <button id="save-clip" class="play">Save video</button>
   </dialog>
 </body>
 </html>

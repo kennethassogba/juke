@@ -117,3 +117,72 @@ dialog p { font-size: 16px; line-height: 1.6; color: #465165; }
  button { border: 1px solid ButtonText; }
  .opponents article { border-color: CanvasText; }
 }
+/* Compact supporting controls; the rink remains the main interaction. */
+.icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.icon.small { width: 16px; height: 16px; }
+.text-button { border: 0; background: transparent; padding: 8px 0; min-height: 44px; color: var(--blue); display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+.text-link, dialog a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+.icon-button { width: 44px; height: 44px; border: 0; background: transparent; font-size: 24px; }
+.transport button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.daily-play { display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; }
+#budget-info { color: var(--muted); }
+.github-link { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; font-size: 14px; }
+.opponent-heading { display: block; position: relative; padding-right: 40px; }
+.opponent-heading b { position: absolute; top: 0; right: 0; }
+.model-kind { display: block; color: var(--muted); font-size: 14px; line-height: 1.4; }
+button.model-kind { color: var(--blue); padding: 0; min-height: 28px; text-align: left; }
+.persona { display: flex; align-items: center; gap: 8px; color: var(--color); font-size: 14px; margin: -5px 0 7px; }
+.avatar { width: 42px; height: 42px; overflow: visible; }
+.avatar-body { fill: #d7edfc; stroke: var(--color); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transform-origin: 32px 44px; }
+[data-opponent="1"] .avatar-body { fill: #ffdecd; }
+[data-opponent="2"] .avatar-body { fill: #fbdcec; }
+.face { stroke: #283044; stroke-width: 2.5; }
+.face .cheek { fill: #ed9fa9; stroke: none; }
+.face .smile { fill: none; }
+[data-thinking="true"] .avatar-body { transform: rotate(-5deg) translateY(-1px); }
+[data-thinking="true"] .face { transform: translateX(2px); }
+[data-error="true"] .avatar { opacity: .65; }
+.install-nudge { max-width: 450px; margin: 12px auto; display: flex; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 16px; font-size: 14px; }
+.install-nudge img { border-radius: 10px; }
+.install-nudge span { flex: 1; }
+dialog { max-height: calc(100svh - 40px); overflow-y: auto; overscroll-behavior: contain; }
+dialog h2 { padding-right: 16px; }
+.model-config { margin: 20px 0; }
+.model-config dt { font-size: 16px; font-weight: 700; margin-top: 16px; }
+.model-config dd { margin: 4px 0 0; color: #465165; font-size: 15px; line-height: 1.5; }
+code { font-size: .92em; overflow-wrap: anywhere; }
+progress { width: 100%; height: 6px; border: 0; border-radius: 5px; overflow: hidden; accent-color: var(--blue); background: #e0e6ee; }
+progress::-webkit-progress-bar { background: #e0e6ee; }
+progress::-webkit-progress-value { background: var(--blue); }
+progress::-moz-progress-bar { background: var(--blue); }
+#signup-form label { display: block; font-size: 14px; }
+#signup-email { width: 100%; margin: 8px 0 16px; padding: 12px; border: 1px solid #788391; border-radius: 10px; font: 16px/1.5 Arial, sans-serif; color: var(--ink); background: white; user-select: text; -webkit-user-select: text; caret-color: var(--blue); }
+#signup-email::placeholder { color: #596473; }
+input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+#signup-form .consent { display: flex; gap: 10px; align-items: flex-start; line-height: 1.5; margin-bottom: 20px; }
+.consent input { accent-color: var(--blue); width: 20px; height: 20px; flex: none; margin-top: 1px; }
+.privacy-note, #signup-status { font-size: 14px; }
+#signup-status[data-error="true"] { color: #a5412c; }
+@media (max-width:700px) {
+ .opponent-heading { padding-right: 0; }
+ .opponent-heading b { position: static; }
+ .opponent-heading h2 { min-height: 0; }
+ .model-kind { min-height: 28px; }
+ .persona { gap: 5px; }
+ footer { flex-wrap: wrap; gap: 8px; }
+ footer nav { gap: 0; }
+ .github-link { gap: 4px; }
+ .github-link .icon { width: 17px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+ button { transition: background-color 150ms ease-out, border-color 150ms ease-out, transform 150ms ease-out; }
+ button:not(:disabled):active { transform: scale(.96); }
+ .avatar-body, .face { transition: transform 300ms cubic-bezier(.2,0,0,1); }
+ dialog { opacity: 0; transform: translateY(8px); transition: opacity 180ms ease-out, transform 220ms cubic-bezier(.2,0,0,1), display 220ms allow-discrete, overlay 220ms allow-discrete; }
+ dialog[open] { opacity: 1; transform: translateY(0); }
+ @starting-style { dialog[open] { opacity: 0; transform: translateY(12px); } }
+ .toggle-dot::after { transition: left 200ms cubic-bezier(.2,0,0,1), background-color 150ms ease-out; }
+}
+@media (prefers-reduced-motion: reduce) {
+ [data-thinking="true"] .avatar-body, [data-thinking="true"] .face { transform: none; }
+}
