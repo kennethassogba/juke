@@ -206,17 +206,18 @@ export class Arena3D {
     this.width = width; this.height = height; this.ratio = ratio;
     this.renderer.setPixelRatio(ratio); this.renderer.setSize(width, height, false);
     if (matchMedia('(max-width: 700px) and (orientation: portrait)').matches) this.fitMobileCamera(width, height);
+    else if (matchMedia('(min-width: 701px) and (min-height: 501px), (min-width: 1001px)').matches) this.fitMobileCamera(width, height, true);
     else { this.camera.clearViewOffset(); this.setCamera(this.camera, width / height); }
   }
 
-  fitMobileCamera(width, height) {
+  fitMobileCamera(width, height, desktop = false) {
     const camera = this.camera;
     camera.clearViewOffset();
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     const target = new THREE.Vector3(0, 1, 0);
     const elevation = THREE.MathUtils.clamp((height / width - .65) / .55, 0, 1);
-    const direction = new THREE.Vector3(1.7, 8 + 18 * elevation, 19 - 9 * elevation).normalize();
+    const direction = (desktop ? new THREE.Vector3(7.2, 12.8, 13.8) : new THREE.Vector3(1.7, 8 + 18 * elevation, 19 - 9 * elevation)).normalize();
     const corners = [];
     for (const x of [-5.35, 5.35]) for (const y of [.3, 1.8]) for (const z of [-5.35, 5.35]) corners.push(new THREE.Vector3(x, y, z));
     const boundsAt = distance => {
@@ -226,7 +227,7 @@ export class Arena3D {
       return { left: Math.min(...points.map(p => p.x)), right: Math.max(...points.map(p => p.x)), top: Math.max(...points.map(p => p.y)), bottom: Math.min(...points.map(p => p.y)) };
     };
     // Fit the entire playing area, including the near rail, with room for the clock.
-    const topSpace = Math.min(74, height * .32), bottomSpace = 22;
+    const topSpace = Math.min(desktop ? 84 : 74, height * .32), bottomSpace = 22;
     const availableHeight = Math.max(1, height - topSpace - bottomSpace) / height * 2;
     let near = 10, far = 80;
     for (let i = 0; i < 24; i++) {

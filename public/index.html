@@ -37,6 +37,10 @@
       <div class="goal-label" data-goal="0">GPT-6 Luna</div>
       <div class="goal-label" data-goal="1">GPT-5.6 Luna</div>
       <div class="goal-label" data-goal="2">GPT-4.1 nano</div>
+      <div id="goal-reaction" class="goal-reaction" role="status" aria-live="polite" hidden>
+        <div class="reaction-avatar" aria-hidden="true"></div>
+        <div class="reaction-copy"><span class="reaction-name"></span><span class="reaction-quote"></span><span class="reaction-cheer"></span></div>
+      </div>
       <div class="launch">
         <div id="result" hidden><strong id="result-title"></strong><span id="result-score"></span></div>
         <button id="play" type="button" class="play" disabled>Connecting</button>
@@ -81,7 +85,7 @@
   <dialog id="guide" aria-labelledby="guide-title">
     <button id="close-guide" class="close" aria-label="Close guide" type="button">×</button>
     <h2 id="guide-title">How to play</h2>
-    <p>Move the white paddle with your mouse, finger or arrow keys. Hit the puck into any coloured goal and protect your own.</p>
+    <p>Touch the rink to start. Move the white paddle with your mouse, finger or arrow keys. Hit the puck into any coloured goal and protect your own.</p>
     <p>You play against all three opponents at once. First to 5 wins. After 40 seconds, the higher score wins.</p>
     <p>Each opponent chooses its next move through a real API call. You can see how long it takes below the rink.</p>
     <button class="text-button" data-open="experiment">About the experiment <span aria-hidden="true">↗</span></button>

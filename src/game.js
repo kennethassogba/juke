@@ -5,6 +5,7 @@ const NAMES = ['GPT-6 Luna', 'GPT-5.6 Luna', 'GPT-4.1 nano'];
 const PERSONAS = ['Pip', 'Momo', 'Bibi'];
 // Cosmetic reactions to real goals; these never control a defender.
 const TAUNTS = [['Lucky shot!', 'Again? Really?', 'I saw nothing.'], ['Just warming up!', 'Okay, your turn is over.', 'Rematch. Now.'], ['Rude. Cute, but rude.', 'You win this one.', 'No more freebies!']];
+const CHEERS = ["You've got Kasparov sweating.", 'One point for the humans.', "That wasn't in the training data.", 'The servers felt that one.', 'Someone check on the machines.'];
 const INKS = ['#216e9d', '#a94523', '#96366f'];
 const ACTIONS = new Set(['intercept', 'press', 'left', 'center', 'right']);
 const BUMPERS = [{ x: .34, y: .46, radius: .045 }, { x: .66, y: .54, radius: .045 }];
@@ -20,6 +21,7 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const videoCanvas = document.createElement('canvas');
 videoCanvas.width = 1080; videoCanvas.height = 1920;
 const video = videoCanvas.getContext('2d');
+let connecting = false, startOnConnect = false, reactionUntil = 0, cheer = '';
 let arena, connected = false, active = false, paused = false, serial = 0;
 let deadline = 0, pausedAt = 0, endedAt = 0, previous = 0, accumulator = 0, hudAt = 0, videoAt = 0;
 let timeLeft = MATCH_SECONDS, you = 0, opponents = 0, serveAt = 0, lastTouch = -1;
@@ -91,7 +93,8 @@ function controls() {
   replay.disabled = !clip;
 }
 async function connect() {
-  if (!arena) return;
+  if (!arena || connecting) return;
+  connecting = true;
   play.disabled = true; play.textContent = 'Connecting';
   try {
     const response = await fetch('/api/status', { cache: 'no-store' });
@@ -105,7 +108,10 @@ async function connect() {
     connected = false; play.disabled = false; play.textContent = 'Retry connection';
     setNotice('Models unavailable. Retry the connection.', true);
   }
+  connecting = false;
   if (connected) { if (budgetBlocked) play.textContent = 'Back tomorrow'; controls(); }
+  const requested = startOnConnect; startOnConnect = false;
+  if (requested && connected && !document.hidden) start();
 }
 
 function schedule(bot, match, delay = 1100) {
@@ -191,6 +197,18 @@ function collide(item, touch = null, fixed = false) {
     if (touch !== null) lastTouch = touch;
   }
 }
+function showGoalReaction(side, now) {
+  const reaction = $('#goal-reaction');
+  reaction.querySelector('.reaction-avatar').replaceChildren($(`.opponents [data-opponent="${side}"] .avatar`).cloneNode(true));
+  reaction.dataset.character = String(side);
+  reaction.dataset.reacting = 'true';
+  reaction.querySelector('.reaction-name').textContent = PERSONAS[side];
+  reaction.querySelector('.reaction-quote').textContent = bots[side].taunt;
+  cheer = CHEERS[(you - 1) % CHEERS.length];
+  reaction.querySelector('.reaction-cheer').textContent = cheer;
+  reactionUntil = now + 2800;
+  reaction.hidden = false;
+}
 function goal(side, now) {
   if (side === 'player') {
     opponents += 1;
@@ -209,7 +227,8 @@ function goal(side, now) {
     bots[side].reactionUntil = now + 2600;
     const positions = [[.07, .5], [.5, .07], [.93, .5]];
     arena.goal(...positions[side], '#f1f5ff');
-    setNotice(`Goal against ${PERSONAS[side]}`);
+    setNotice('');
+    showGoalReaction(side, now);
   }
   puck = newPuck(); serveAt = now + 700; lastTouch = -1;
   if (you >= WIN || opponents >= WIN) finish(you > opponents ? 'You win' : 'Models win');
@@ -243,18 +262,18 @@ function physics(dt, now) {
   puck.trail.push({ x: puck.x, y: puck.y }); if (puck.trail.length > 20) puck.trail.shift();
 }
 
-function start() {
+function start({ keyboard = false } = {}) {
   if (budgetBlocked) return;
-  if (!connected) return connect();
+  if (!connected) { startOnConnect = true; return connect(); }
   if (active || bots.some(bot => bot.thinking) || recorder) return;
   serial += 1; bots = newBots(); player = body(.5, .85, .072); target = { x: .5, y: .85 }; puck = newPuck();
   you = opponents = 0; lastTouch = -1; timeLeft = MATCH_SECONDS; result = '';
-  active = true; paused = false; accumulator = 0; heldKeys.clear(); $('#install-nudge').hidden = true;
+  active = true; paused = false; accumulator = 0; heldKeys.clear(); reactionUntil = 0; $('#goal-reaction').hidden = true; $('#install-nudge').hidden = true;
   deadline = performance.now() + MATCH_SECONDS * 1000; serveAt = performance.now() + 900;
   clip = null; if (clipUrl) URL.revokeObjectURL(clipUrl); clipUrl = null;
   document.body.dataset.playing = 'true'; $('#result').hidden = true; $('#paused').hidden = true; $('#gesture-hint').hidden = false;
   setNotice(''); startRecording(); bots.forEach(bot => decide(bot, serial)); controls();
-  canvas.focus({ preventScroll: true });
+  if (keyboard) canvas.focus({ preventScroll: true });
 }
 function finish(message) {
   if (!active) return;
@@ -284,11 +303,18 @@ function pointer(event) {
   $('#gesture-hint').hidden = true;
 }
 canvas.addEventListener('pointerdown', event => {
-  pointerHeld = true; canvas.setPointerCapture(event.pointerId); canvas.focus({ preventScroll: true }); pointer(event); event.preventDefault();
+  if (event.button !== 0 || !event.isPrimary) return;
+  document.body.dataset.input = 'pointer';
+  if (!active) start();
+  else if (paused) togglePause();
+  pointerHeld = true; canvas.setPointerCapture(event.pointerId); pointer(event); event.preventDefault();
 });
 canvas.addEventListener('pointermove', event => { if (pointerHeld || event.pointerType === 'mouse') pointer(event); });
 for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) canvas.addEventListener(type, () => { pointerHeld = false; });
+document.addEventListener('pointerdown', () => { document.body.dataset.input = 'pointer'; }, { passive: true });
 window.addEventListener('keydown', event => {
+  document.body.dataset.input = 'keyboard';
+  if (directions[event.key] && event.target === canvas && !active && !document.querySelector('dialog[open]')) start({ keyboard: true });
   if (!active || paused || !directions[event.key] || document.querySelector('dialog[open]') || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName) || event.metaKey || event.ctrlKey || event.altKey) return;
   heldKeys.add(event.key); event.preventDefault();
 });
@@ -315,6 +341,7 @@ function drawReplay() {
   video.fillStyle = '#1c2331'; video.font = '900 italic 72px Arial'; video.textAlign = 'left'; video.fillText('JUKE', 48, 100);
   video.textAlign = 'right'; video.fillStyle = '#1c2331'; video.font = '700 56px Arial'; video.fillText(`${you} : ${opponents}`, w - 48, 100);
   video.font = '500 32px Arial'; video.fillText(active ? `${timeLeft}s` : result.toUpperCase(), w - 48, 158);
+  if (performance.now() < reactionUntil) { video.textAlign = 'left'; video.font = '500 28px Arial'; video.fillText(cheer, 48, 172); }
   video.drawImage(arena.replayFrame(), 0, 200, 1080, 1350);
   const labels = [[-.035, .5], [.5, -.035], [1.035, .5]];
   labels.forEach(([x, y], index) => {
@@ -338,13 +365,14 @@ function drawReplay() {
 }
 
 function hud(now) {
+  $('#goal-reaction').hidden = now >= reactionUntil;
   $('#you-score').textContent = you; $('#ai-score').textContent = opponents; $('#clock').textContent = `${timeLeft}s`;
   bots.forEach((bot, index) => {
     const card = document.querySelector(`[data-opponent="${index}"]`);
     const reacting = now < bot.reactionUntil;
     card.dataset.reacting = String(reacting);
     const taunt = card.querySelector('[data-taunt]');
-    taunt.hidden = !reacting;
+    taunt.hidden = true;
     taunt.textContent = reacting ? bot.taunt : '';
     card.querySelector('[data-latency]').textContent = bot.thinking ? `${Math.round(now - bot.started)} ms` : bot.latency == null ? '- ms' : `${bot.latency} ms`;
     card.querySelector('[data-cost]').textContent = cost(bot);
@@ -380,7 +408,7 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
-play.addEventListener('click', start);
+play.addEventListener('click', event => start({ keyboard: event.detail === 0 }));
 pause.addEventListener('click', togglePause);
 $('#restart').addEventListener('click', () => finish('Match ended'));
 $('#obstacles').addEventListener('click', () => { bumpersOn = !bumpersOn; $('#obstacles').setAttribute('aria-pressed', String(bumpersOn)); });
@@ -471,7 +499,7 @@ $('#unsubscribe').addEventListener('click', async () => {
   finally { button.disabled = false; }
 });
 window.addEventListener('focus', refreshBudget);
-document.addEventListener('visibilitychange', () => { heldKeys.clear(); if (document.hidden && active && !paused) togglePause(); if (!document.hidden) refreshBudget(); });
+document.addEventListener('visibilitychange', () => { heldKeys.clear(); if (document.hidden) startOnConnect = false; if (document.hidden && active && !paused) togglePause(); if (!document.hidden) refreshBudget(); });
 window.addEventListener('blur', () => { pointerHeld = false; heldKeys.clear(); });
 requestAnimationFrame(frame);
 connect();
