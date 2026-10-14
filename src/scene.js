@@ -101,7 +101,8 @@ export class Arena3D {
     this.reducedMotion = reducedMotion;
     this.renderer = this.makeRenderer(canvas);
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color('#ffffff');
+    // Transparent outside the rink lets the mobile scores sit behind the table.
+    this.scene.background = null;
     this.scene.fog = new THREE.Fog('#ffffff', 24, 65);
     this.scene.environment = environment();
     this.camera = new THREE.PerspectiveCamera(36, 1, .1, 100);
@@ -181,7 +182,7 @@ export class Arena3D {
   }
 
   makeRenderer(canvas) {
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.22;
@@ -204,7 +205,40 @@ export class Arena3D {
     if (this.width === width && this.height === height && this.ratio === ratio) return;
     this.width = width; this.height = height; this.ratio = ratio;
     this.renderer.setPixelRatio(ratio); this.renderer.setSize(width, height, false);
-    this.setCamera(this.camera, width / height);
+    if (matchMedia('(max-width: 700px) and (orientation: portrait)').matches) this.fitMobileCamera(width, height);
+    else { this.camera.clearViewOffset(); this.setCamera(this.camera, width / height); }
+  }
+
+  fitMobileCamera(width, height) {
+    const camera = this.camera;
+    camera.clearViewOffset();
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    const target = new THREE.Vector3(0, 1, 0);
+    const elevation = THREE.MathUtils.clamp((height / width - .65) / .55, 0, 1);
+    const direction = new THREE.Vector3(1.7, 8 + 18 * elevation, 19 - 9 * elevation).normalize();
+    const corners = [];
+    for (const x of [-5.35, 5.35]) for (const y of [.3, 1.8]) for (const z of [-5.35, 5.35]) corners.push(new THREE.Vector3(x, y, z));
+    const boundsAt = distance => {
+      camera.position.copy(target).addScaledVector(direction, distance);
+      camera.lookAt(target); camera.updateMatrixWorld();
+      const points = corners.map(point => point.clone().project(camera));
+      return { left: Math.min(...points.map(p => p.x)), right: Math.max(...points.map(p => p.x)), top: Math.max(...points.map(p => p.y)), bottom: Math.min(...points.map(p => p.y)) };
+    };
+    // Fit the entire playing area, including the near rail, with room for the clock.
+    const topSpace = Math.min(74, height * .32), bottomSpace = 22;
+    const availableHeight = Math.max(1, height - topSpace - bottomSpace) / height * 2;
+    let near = 10, far = 80;
+    for (let i = 0; i < 24; i++) {
+      const distance = (near + far) / 2, bounds = boundsAt(distance);
+      if (bounds.left < -.995 || bounds.right > .995 || bounds.top - bounds.bottom > availableHeight) near = distance;
+      else far = distance;
+    }
+    const bounds = boundsAt(far);
+    const center = (1 - (bounds.top + bounds.bottom) / 2) * height / 2;
+    const desiredCenter = height - bottomSpace - (bounds.top - bounds.bottom) * height / 4;
+    camera.setViewOffset(width, height, 0, center - desiredCenter, width, height);
+    camera.updateProjectionMatrix();
   }
 
   pointerPosition(clientX, clientY) {

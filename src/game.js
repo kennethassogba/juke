@@ -2,6 +2,9 @@ import { Arena3D, COLORS } from './scene.js';
 
 const MODELS = ['gpt-6-luna', 'gpt-5.6-luna', 'gpt-4.1-nano'];
 const NAMES = ['GPT-6 Luna', 'GPT-5.6 Luna', 'GPT-4.1 nano'];
+const PERSONAS = ['Pip', 'Momo', 'Bibi'];
+// Cosmetic reactions to real goals; these never control a defender.
+const TAUNTS = [['Lucky shot!', 'Again? Really?', 'I saw nothing.'], ['Just warming up!', 'Okay, your turn is over.', 'Rematch. Now.'], ['Rude. Cute, but rude.', 'You win this one.', 'No more freebies!']];
 const INKS = ['#216e9d', '#a94523', '#96366f'];
 const ACTIONS = new Set(['intercept', 'press', 'left', 'center', 'right']);
 const BUMPERS = [{ x: .34, y: .46, radius: .045 }, { x: .66, y: .54, radius: .045 }];
@@ -41,7 +44,7 @@ function newBots() {
   return MODELS.map((model, index) => ({
     model, index, paddle: index === 0 ? body(.15, .5, .065) : index === 1 ? body(.5, .15, .065) : body(.85, .5, .065),
     action: null, aim: null, thinking: false, latency: null, started: 0, cost: 0, knownCost: true,
-    goals: 0, conceded: 0, timer: 0, retry: 0, error: '',
+    goals: 0, conceded: 0, reactionUntil: 0, taunt: '', timer: 0, retry: 0, error: '',
   }));
 }
 
@@ -201,9 +204,12 @@ function goal(side, now) {
     }
   } else {
     bots[side].conceded += 1; you += 1;
+    bots.forEach(bot => { bot.reactionUntil = 0; });
+    bots[side].taunt = TAUNTS[side][(bots[side].conceded - 1) % TAUNTS[side].length];
+    bots[side].reactionUntil = now + 2600;
     const positions = [[.07, .5], [.5, .07], [.93, .5]];
     arena.goal(...positions[side], '#f1f5ff');
-    setNotice(`Goal against ${NAMES[side]}`);
+    setNotice(`Goal against ${PERSONAS[side]}`);
   }
   puck = newPuck(); serveAt = now + 700; lastTouch = -1;
   if (you >= WIN || opponents >= WIN) finish(you > opponents ? 'You win' : 'Models win');
@@ -323,9 +329,10 @@ function drawReplay() {
     video.textAlign = 'left'; video.fillStyle = INKS[index]; video.fillRect(x, 1560, 300, 4);
     video.font = '700 34px Arial'; video.fillText(NAMES[index], x, 1610);
     video.font = '500 30px monospace'; video.fillStyle = '#2f3b4f';
-    video.fillText(`${bot.conceded}:${bot.goals}   ${bot.latency == null ? '-' : bot.latency}ms`, x, 1660);
+    video.fillText(`${bot.latency == null ? '-' : bot.latency} ms`, x, 1660);
     video.fillText(cost(bot), x, 1710);
     video.fillStyle = '#596473'; video.font = '500 26px Arial'; video.fillText(bot.thinking ? 'READING' : bot.action?.toUpperCase() || 'WAITING', x, 1755);
+    video.font = '500 23px Arial'; video.fillText(performance.now() < bot.reactionUntil ? bot.taunt : PERSONAS[index], x, 1800);
   });
   video.textAlign = 'left'; video.fillStyle = '#596473'; video.font = '500 30px Arial'; video.fillText('juke.keff.uk', 48, 1860);
 }
@@ -334,7 +341,11 @@ function hud(now) {
   $('#you-score').textContent = you; $('#ai-score').textContent = opponents; $('#clock').textContent = `${timeLeft}s`;
   bots.forEach((bot, index) => {
     const card = document.querySelector(`[data-opponent="${index}"]`);
-    card.querySelector('[data-score]').textContent = `${bot.conceded}:${bot.goals}`;
+    const reacting = now < bot.reactionUntil;
+    card.dataset.reacting = String(reacting);
+    const taunt = card.querySelector('[data-taunt]');
+    taunt.hidden = !reacting;
+    taunt.textContent = reacting ? bot.taunt : '';
     card.querySelector('[data-latency]').textContent = bot.thinking ? `${Math.round(now - bot.started)} ms` : bot.latency == null ? '- ms' : `${bot.latency} ms`;
     card.querySelector('[data-cost]').textContent = cost(bot);
     const state = card.querySelector('[data-action]');

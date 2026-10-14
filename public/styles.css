@@ -55,7 +55,6 @@ button:focus-visible, a:focus-visible, canvas:focus-visible { outline: 2px solid
 .opponents article:nth-child(3) { --color: var(--rose); }
 .opponent-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .opponent-heading h2 { margin: 0; font-size: 16px; font-weight: 700; color: var(--color); }
-.opponent-heading b { font: 15px ui-monospace, monospace; color: var(--ink); }
 .decision { color: #596473; font-size: 14px; margin-top: 7px; text-transform: capitalize; }
 .decision::before { content: ''; display: inline-block; width: 5px; height: 5px; margin-right: 7px; border-radius: 50%; background: var(--color); }
 [data-thinking="true"] .decision::before { background: transparent; border: 1px solid var(--color); }
@@ -95,7 +94,6 @@ dialog p { font-size: 16px; line-height: 1.6; color: #465165; }
  .opponents article { padding-top: 10px; }
  .opponent-heading { display: block; }
  .opponent-heading h2 { font-size: 14px; min-height: 36px; }
- .opponent-heading b { display: block; margin-top: 3px; font-size: 16px; }
  .measurements { display: grid; gap: 3px; font-size: 14px; }
  .decision { margin-top: 7px; }
  .transport { margin-top: 20px; gap: 8px; }
@@ -127,8 +125,7 @@ dialog p { font-size: 16px; line-height: 1.6; color: #465165; }
 .daily-play { display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; }
 #budget-info { color: var(--muted); }
 .github-link { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; font-size: 14px; }
-.opponent-heading { display: block; position: relative; padding-right: 40px; }
-.opponent-heading b { position: absolute; top: 0; right: 0; }
+.opponent-heading { display: block; position: relative; padding-right: 0; }
 .model-kind { display: block; color: var(--muted); font-size: 14px; line-height: 1.4; }
 button.model-kind { color: var(--blue); padding: 0; min-height: 28px; text-align: left; }
 .persona { display: flex; align-items: center; gap: 8px; color: var(--color); font-size: 14px; margin: -5px 0 7px; }
@@ -165,7 +162,6 @@ input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
 #signup-status[data-error="true"] { color: #a5412c; }
 @media (max-width:700px) {
  .opponent-heading { padding-right: 0; }
- .opponent-heading b { position: static; }
  .opponent-heading h2 { min-height: 0; }
  .model-kind { min-height: 28px; }
  .persona { gap: 5px; }
@@ -202,10 +198,9 @@ input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
  .opponents article { padding-top: 4px; }
  .persona { height: 30px; margin: 0 0 2px; }
  .persona .avatar { width: 30px; height: 30px; }
- .persona span { display: none; }
+ .persona > span:not(.taunt) { display: inline; font-weight: 700; }
  .opponent-heading { display: block; padding: 0; }
  .opponent-heading h2 { min-height: 0; font-size: 14px; line-height: 1.4; }
- .opponent-heading b { position: absolute; right: 0; top: -30px; margin: 0; font-size: 18px; line-height: 28px; }
  .model-kind { min-height: 24px; font-size: 14px; line-height: 24px; }
  button.model-kind { min-height: 24px; }
  .decision { margin-top: 1px; line-height: 20px; }
@@ -238,4 +233,37 @@ input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
  .daily-play { grid-column: 2; grid-row: 3; }
  .install-nudge { right: auto; width: calc(58% - 16px); top: 40px; }
  .gesture-hint { bottom: 0; }
+}
+
+/* Mascots react to conceded goals without changing the layout or the AI state. */
+.persona { position: relative; }
+.taunt { position: absolute; bottom: calc(100% + 8px); left: 0; z-index: 4; width: max-content; max-width: min(170px, 44vw); padding: 8px 10px; border: 1px solid var(--line); border-radius: 14px 14px 14px 3px; background: white; color: var(--ink); font-size: 14px; line-height: 1.25; box-shadow: 0 4px 14px #1c233112; pointer-events: none; }
+[data-opponent="2"] .taunt { left: auto; right: 0; border-radius: 14px 14px 3px 14px; }
+[data-reacting="true"] .face .eyes { transform: translateY(1px) scaleY(.85); transform-origin: center; }
+[data-reacting="true"] .face .smile { transform: rotate(180deg); transform-origin: 32px 40px; }
+@media (prefers-reduced-motion: no-preference) {
+ [data-reacting="true"] .avatar-body { animation: pip-huff 650ms cubic-bezier(.2,.7,.2,1); }
+ [data-opponent="1"][data-reacting="true"] .avatar-body { animation-name: momo-stomp; }
+ [data-opponent="2"][data-reacting="true"] .avatar-body { animation-name: bibi-wobble; }
+ [data-reacting="true"] .taunt { animation: taunt-in 220ms cubic-bezier(.2,.7,.2,1); }
+ @keyframes pip-huff { 0%,100% { transform: rotate(0); } 20%,60% { transform: rotate(-12deg); } 40%,80% { transform: rotate(10deg); } }
+ @keyframes momo-stomp { 0%,100% { transform: translateY(0) scale(1); } 25%,65% { transform: translateY(-8px) scale(.96,1.04); } 45%,85% { transform: translateY(1px) scale(1.08,.9); } }
+ @keyframes bibi-wobble { 0%,100% { transform: rotate(0); } 30% { transform: rotate(16deg) translateY(-4px); } 60% { transform: rotate(-12deg); } 80% { transform: rotate(6deg); } }
+ @keyframes taunt-in { from { opacity: 0; transform: translateY(5px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+}
+@media (max-width: 700px) and (orientation: portrait) {
+ main { isolation: isolate; grid-template-rows: minmax(0, 1fr) auto 44px 44px; }
+ .scoreboard { position: absolute; top: 8px; left: 0; right: 0; width: 100%; height: auto; z-index: 0; grid-template-columns: 1fr 48px 1fr; gap: 0; align-items: start; pointer-events: none; }
+ .team-score { flex-direction: column; gap: 0; justify-content: flex-start; }
+ .team-score span { order: -1; font-size: 14px; }
+ .team-score b { font-size: clamp(64px, min(54vw, calc(42dvh - 144px)), 220px); font-weight: 800; letter-spacing: -.065em; line-height: .95; }
+ .clock { padding-top: 2px; }
+ .stage { z-index: 1; }
+ .launch { top: 56%; }
+ .install-nudge { top: auto; bottom: 96px; }
+}
+
+@media (max-width: 700px) and (max-height: 650px) and (orientation: portrait) {
+ .scoreboard { top: 0; }
+ .team-score b { font-size: 64px; }
 }
