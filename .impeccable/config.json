@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "arial",
+        "files": [
+          "public/index.html"
+        ],
+        "createdAt": "2026-10-14T00:00:58.939Z",
+        "reason": "Intentional neutral sans-serif for the user brief: light restrained game UI, with no decorative type treatment."
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "public/index.html"
+        ],
+        "createdAt": "2026-10-14T00:00:59.588Z",
+        "reason": "Agent: scanner counts the visually hidden h1 and peer model labels. Visible brand and scores are 30-42px; guide heading 32px versus body 16px, confirmed in the browser."
+      }
+    ]
+  }
+}

@@ -12,7 +12,7 @@ body { padding-inline: max(20px, env(safe-area-inset-left)); background: var(--b
 button, a { font: inherit; color: inherit; }
 a { text-decoration: none; }
 button { cursor: pointer; touch-action: manipulation; }
-button:disabled { cursor: default; color: #929ba8; }
+button:disabled { cursor: default; color: #596473; }
 button:focus-visible, a:focus-visible, canvas:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
 [hidden] { display: none !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); }
@@ -43,7 +43,7 @@ button:focus-visible, a:focus-visible, canvas:focus-visible { outline: 2px solid
 [data-goal="2"] { color: var(--rose); }
 .launch { position: absolute; z-index: 3; top: 48%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
 .play { pointer-events: auto; border: 1px solid #c5cedb; min-width: 140px; min-height: 56px; padding: 0 28px; border-radius: 32px; background: #f4f6ff; color: #101320; font-weight: 700; font-size: 18px; box-shadow: none; }
-.play:disabled { background: #eef1f5; color: #657187; box-shadow: none; }
+.play:disabled { background: #eef1f5; color: #596473; box-shadow: none; }
 #result { margin-bottom: 20px; padding: 14px 30px; background: #ffffffed; border-radius: 18px; }
 #result-title { display: block; font-size: 24px; white-space: nowrap; }
 #result-score { display: block; margin-top: 4px; font-size: 42px; }
@@ -58,7 +58,7 @@ button:focus-visible, a:focus-visible, canvas:focus-visible { outline: 2px solid
 .opponent-heading b { font: 15px ui-monospace, monospace; color: var(--ink); }
 .decision { color: #596473; font-size: 14px; margin-top: 7px; text-transform: capitalize; }
 .decision::before { content: ''; display: inline-block; width: 5px; height: 5px; margin-right: 7px; border-radius: 50%; background: var(--color); }
-[data-thinking="true"] .decision::before { box-shadow: 0 0 8px var(--color); }
+[data-thinking="true"] .decision::before { background: transparent; border: 1px solid var(--color); }
 [data-error="true"] .decision { color: #a5412c; }
 .measurements { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; color: #2f3b4f; font: 14px ui-monospace, monospace; white-space: nowrap; }
 .transport { display: flex; justify-content: center; gap: 12px; margin: 24px 0 4px; }
