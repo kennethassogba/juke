@@ -20,6 +20,15 @@
         ],
         "createdAt": "2026-10-14T00:00:59.588Z",
         "reason": "Agent: scanner counts the visually hidden h1 and peer model labels. Visible brand and scores are 30-42px; guide heading 32px versus body 16px, confirmed in the browser."
+      },
+      {
+        "rule": "bounce-easing",
+        "value": "bibi-wobble",
+        "files": [
+          "public/styles.css"
+        ],
+        "createdAt": "2026-10-14T00:46:18.161Z",
+        "reason": "Intentional mascot reaction explicitly requested by the user after conceded goals. A single 650ms cartoon wobble with non-overshooting easing, disabled for reduced motion."
       }
     ]
   }
