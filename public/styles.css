@@ -281,12 +281,12 @@ input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
 .goal-reaction[data-celebrating="true"] { gap: 12px; }
 .goal-reaction[data-celebrating="true"] .reaction-avatar { display: flex; gap: 4px; width: 122px; height: auto; }
 .goal-reaction[data-celebrating="true"] .reaction-member { --color: var(--blue); flex: 0 0 38px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--color); font-size: 14px; line-height: 1.2; }
-.goal-reaction[data-celebrating="true"] .reaction-member[data-opponent="1"] { --color: var(--orange); }
-.goal-reaction[data-celebrating="true"] .reaction-member[data-opponent="2"] { --color: var(--rose); }
+.goal-reaction[data-celebrating="true"] .reaction-member[data-character="1"] { --color: var(--orange); }
+.goal-reaction[data-celebrating="true"] .reaction-member[data-character="2"] { --color: var(--rose); }
 .goal-reaction[data-celebrating="true"] .reaction-member .avatar { width: 38px; height: 38px; }
-.goal-reaction[data-celebrating="true"] .reaction-member[data-opponent="0"] .avatar-body { fill: #d7edfc; }
-.goal-reaction[data-celebrating="true"] .reaction-member[data-opponent="1"] .avatar-body { fill: #ffdecd; }
-.goal-reaction[data-celebrating="true"] .reaction-member[data-opponent="2"] .avatar-body { fill: #fbdcec; }
+.goal-reaction[data-celebrating="true"] .reaction-member[data-character="0"] .avatar-body { fill: #d7edfc; }
+.goal-reaction[data-celebrating="true"] .reaction-member[data-character="1"] .avatar-body { fill: #ffdecd; }
+.goal-reaction[data-celebrating="true"] .reaction-member[data-character="2"] .avatar-body { fill: #fbdcec; }
 .goal-reaction[data-celebrating="true"] .reaction-copy { min-width: 0; display: grid; grid-template-columns: 1fr; gap: 3px; }
 .goal-reaction[data-celebrating="true"] .reaction-name { color: var(--ink); }
 [data-celebrating="true"] .face .smile { transform: scale(1.15); transform-origin: 32px 40px; }
@@ -300,8 +300,8 @@ input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
  .goal-reaction[data-character="2"] .avatar-body { animation-name: bibi-wobble; }
  [data-celebrating="true"] .avatar-body { animation: team-cheer 650ms cubic-bezier(.2,0,0,1) 2; }
  .goal-reaction[data-celebrating="true"] .avatar-body { animation: team-cheer 650ms cubic-bezier(.2,0,0,1) 2; }
- [data-celebrating="true"] [data-opponent="1"] .avatar-body { animation-delay: 100ms; }
- [data-celebrating="true"] [data-opponent="2"] .avatar-body { animation-delay: 200ms; }
+ [data-celebrating="true"] .reaction-member[data-character="1"] .avatar-body { animation-delay: 100ms; }
+ [data-celebrating="true"] .reaction-member[data-character="2"] .avatar-body { animation-delay: 200ms; }
  @keyframes team-cheer { 0%,100% { transform: rotate(0) translateY(0); } 30% { transform: rotate(-6deg) translateY(-3px); } 65% { transform: rotate(6deg) translateY(-2px); } }
 }
 @media (prefers-reduced-motion: reduce) {

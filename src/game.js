@@ -41,6 +41,8 @@ const play = $('#play');
 const pause = $('#pause');
 const replay = $('#replay');
 const notice = $('#notice');
+// Keep HUD updates bound to the real cards, never to decorative avatar clones.
+const opponentCards = [...document.querySelectorAll('.opponents > article[data-opponent]')];
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const videoCanvas = document.createElement('canvas');
 videoCanvas.width = 1080; videoCanvas.height = 1920;
@@ -231,8 +233,8 @@ function showGoalReaction(side, now, team = false) {
   avatars.replaceChildren();
   for (const index of team ? [0, 1, 2] : [side]) {
     const member = document.createElement('span');
-    member.className = 'reaction-member'; member.dataset.opponent = String(index);
-    member.append($(`.opponents [data-opponent="${index}"] .avatar`).cloneNode(true));
+    member.className = 'reaction-member'; member.dataset.character = String(index);
+    member.append(opponentCards[index].querySelector('.avatar').cloneNode(true));
     if (team) { const name = document.createElement('span'); name.textContent = PERSONAS[index]; member.append(name); }
     avatars.append(member);
   }
@@ -417,7 +419,7 @@ function hud(now) {
   $('#goal-reaction').hidden = now >= reactionUntil;
   $('#you-score').textContent = you; $('#ai-score').textContent = opponents; $('#clock').textContent = `${timeLeft}s`;
   bots.forEach((bot, index) => {
-    const card = document.querySelector(`[data-opponent="${index}"]`);
+    const card = opponentCards[index];
     const reacting = now < bot.reactionUntil;
     card.dataset.reacting = String(reacting && !bot.celebrating);
     card.dataset.celebrating = String(reacting && bot.celebrating);
@@ -490,7 +492,7 @@ function updateModeUI() {
     ? 'Arcade opponents predict the puck and its rebounds. Change the difficulty from the Arcade button above the rink.'
     : 'Each opponent chooses its next move through a real API call. Its response time and cost appear beside its name.';
   bots.forEach((bot, index) => {
-    const card = $(`.opponents [data-opponent="${index}"]`);
+    const card = opponentCards[index];
     card.querySelector('h2').textContent = arcade ? ROLES[index] : NAMES[index];
     const kind = card.querySelector('.model-kind');
     kind.textContent = arcade ? LEVELS[difficulty].label : index === 0 ? 'Decisions ↗' : 'Responses';
