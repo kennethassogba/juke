@@ -18,6 +18,16 @@ Move with your mouse, finger or arrow keys. Protect the front goal and score in 
 
 ## How it works
 
+### Choose your opponents
+
+Use the mode button above the rink to switch between **OpenAI** and **Arcade**. It also holds the bumper toggle. Changing modes starts a new match; your mode and difficulty are remembered on this device.
+
+Arcade is a local, classic game AI with four levels: Easy, Normal, Hard and Expert. Pip guards close to goal, Momo presses farther forward, and Bibi counterattacks. They forecast puck trajectories and bumper rebounds, choose reachable interceptions, and aim returns away from your paddle. Higher levels react sooner, move faster and aim more precisely. Expert has a 25 ms planning interval and the same maximum paddle speed as the player. It cannot read future input or teleport.
+
+Arcade uses no API credits and works offline after the app has been cached. Its replays show the mode and difficulty. OpenAI mode continues to use real model decisions and measured API usage.
+
+### OpenAI architecture
+
 `Three.js rink → physical snapshot → Cloudflare Worker → OpenAI → chosen move → paddle target`
 
 Every model gets the same state format: puck position and velocity, all four paddles, goals, bumpers and score. Coordinates rotate to put its own goal at `y=0`. All three use the same instructions and actions: `intercept`, `press`, `left`, `center`, `right`.
@@ -45,6 +55,6 @@ npx wrangler d1 migrations apply juke-mailing-list --local
 npm run dev
 ```
 
-Frontend: `src/game.js`, `src/scene.js`, `public/index.html`, `public/styles.css`. API, budget and signup: `src/worker.js`. `npm run check` checks syntax and rebuilds `public/app.js`.
+Frontend: `src/game.js`, `src/scene.js`, `src/arcade.js`, `public/index.html`, `public/styles.css`. API, budget and signup: `src/worker.js`. `npm run check` checks syntax and rebuilds `public/app.js`. Arcade runs without an API key.
 
 Production uses Cloudflare Workers Builds on pushes to `main`. GitHub Actions also checks the build and Worker bundle. To deploy your own copy, replace the account-specific domain and D1 binding in `wrangler.jsonc`, create the database, apply its migrations, and set `OPENAI_API_KEY` with Wrangler. Keep the key in a Worker secret.

@@ -1,4 +1,5 @@
 import { Arena3D, COLORS } from './scene.js';
+import { LEVELS, ROLES, planArcade } from './arcade.js';
 
 const MODELS = ['gpt-6-luna', 'gpt-5.6-luna', 'gpt-4.1-nano'];
 const NAMES = ['GPT-6 Luna', 'GPT-5.6 Luna', 'GPT-4.1 nano'];
@@ -39,6 +40,11 @@ const remember = (key, value) => { try { localStorage.setItem(key, value); } cat
 const recalled = key => { try { return localStorage.getItem(key); } catch { return null; } };
 let installPrompt = null;
 let modalTrigger = null;
+let gameMode = recalled('juke-mode') === 'arcade' ? 'arcade' : 'openai';
+let difficulty = Object.hasOwn(LEVELS, recalled('juke-level')) ? recalled('juke-level') : 'hard';
+let changingMode = false;
+const opponentName = index => gameMode === 'arcade' ? PERSONAS[index] : NAMES[index];
+const opponentWin = () => gameMode === 'arcade' ? 'Arcade wins' : 'Models win';
 
 function body(x, y, radius) { return { x, y, vx: 0, vy: 0, radius }; }
 function newPuck() { return { ...body(.5, .5, .026), vx: .18, vy: .85, trail: [] }; }
@@ -46,7 +52,7 @@ function newBots() {
   return MODELS.map((model, index) => ({
     model, index, paddle: index === 0 ? body(.15, .5, .065) : index === 1 ? body(.5, .15, .065) : body(.85, .5, .065),
     action: null, aim: null, thinking: false, latency: null, started: 0, cost: 0, knownCost: true,
-    goals: 0, conceded: 0, reactionUntil: 0, taunt: '', timer: 0, retry: 0, error: '',
+    goals: 0, conceded: 0, reactionUntil: 0, taunt: '', timer: 0, retry: 0, error: '', nextThink: 0,
   }));
 }
 
@@ -85,7 +91,7 @@ function setNotice(text, error = false) { notice.textContent = text; notice.data
 function cost(bot) { return bot.knownCost ? `$${bot.cost.toFixed(5)}` : '-'; }
 function controls() {
   const pending = bots.some(bot => bot.thinking);
-  play.disabled = !arena || pending || Boolean(recorder) || budgetBlocked;
+  play.disabled = !arena || pending || Boolean(recorder) || changingMode || (gameMode === 'openai' && budgetBlocked);
   pause.disabled = !active;
   pause.textContent = paused ? 'Resume' : 'Pause';
   $('#restart').hidden = !active;
@@ -93,7 +99,7 @@ function controls() {
   replay.disabled = !clip;
 }
 async function connect() {
-  if (!arena || connecting) return;
+  if (!arena || connecting || gameMode !== 'openai') return;
   connecting = true;
   play.disabled = true; play.textContent = 'Connecting';
   try {
@@ -102,24 +108,23 @@ async function connect() {
     updateBudget(data.budget);
     connected = response.ok && data.configured && MODELS.every(model => data.models?.some(item => item.id === model && item.ready));
     if (!connected) throw new Error('Models unavailable');
-    play.textContent = serial ? 'Play again' : 'Play';
-    setNotice('');
+    if (gameMode === 'openai') { play.textContent = serial ? 'Play again' : 'Play'; setNotice(''); }
   } catch {
-    connected = false; play.disabled = false; play.textContent = 'Retry connection';
-    setNotice('Models unavailable. Retry the connection.', true);
+    connected = false;
+    if (gameMode === 'openai') { play.disabled = false; play.textContent = 'Retry connection'; setNotice('Models unavailable. Try Arcade or retry the connection.', true); }
   }
   connecting = false;
-  if (connected) { if (budgetBlocked) play.textContent = 'Back tomorrow'; controls(); }
+  if (connected && gameMode === 'openai') { if (budgetBlocked) play.textContent = 'Back tomorrow'; controls(); }
   const requested = startOnConnect; startOnConnect = false;
-  if (requested && connected && !document.hidden) start();
+  if (requested && connected && gameMode === 'openai' && !document.hidden) start();
 }
 
 function schedule(bot, match, delay = 1100) {
   clearTimeout(bot.timer);
-  if (active && !paused && match === serial) bot.timer = setTimeout(() => decide(bot, match), delay);
+  if (gameMode === 'openai' && active && !paused && match === serial) bot.timer = setTimeout(() => decide(bot, match), delay);
 }
 async function decide(bot, match) {
-  if (!active || paused || bot.thinking || match !== serial) return;
+  if (gameMode !== 'openai' || !active || paused || bot.thinking || match !== serial) return;
   bot.thinking = true; bot.started = performance.now();
   const snapshot = physicalState(bot);
   try {
@@ -215,7 +220,7 @@ function goal(side, now) {
     if (lastTouch >= 0) {
       bots[lastTouch].goals += 1;
       arena.goal(.5, .93, COLORS[lastTouch]);
-      setNotice(`${NAMES[lastTouch]} scores`);
+      setNotice(`${opponentName(lastTouch)} scores`);
     } else {
       arena.goal(.5, .93, '#f1f5ff');
       setNotice('Own goal');
@@ -231,14 +236,23 @@ function goal(side, now) {
     showGoalReaction(side, now);
   }
   puck = newPuck(); serveAt = now + 700; lastTouch = -1;
-  if (you >= WIN || opponents >= WIN) finish(you > opponents ? 'You win' : 'Models win');
+  if (you >= WIN || opponents >= WIN) finish(you > opponents ? 'You win' : opponentWin());
 }
 function physics(dt, now) {
   let kx = 0, ky = 0;
   for (const key of heldKeys) { kx += directions[key][0]; ky += directions[key][1]; }
   if (kx || ky) { const length = Math.hypot(kx, ky); target = { x: clamp(target.x + kx / length * 1.25 * dt, .08, .92), y: clamp(target.y + ky / length * 1.25 * dt, .61, .93) }; $('#gesture-hint').hidden = true; }
   move(player, target, 2.6, dt);
-  bots.forEach(bot => move(bot.paddle, bot.aim || bot.paddle, .68, dt));
+  bots.forEach(bot => {
+    if (gameMode === 'arcade' && now >= bot.nextThink) {
+      const shotX = player.x >= .5 ? .415 : .585;
+      const plan = planArcade({ puck: local(puck, bot.index), defender: local(bot.paddle, bot.index),
+        playerGoal: local({ x: shotX, y: 1 }, bot.index), bumpers: bumpersOn ? BUMPERS.map(item => local(item, bot.index)) : [], index: bot.index, difficulty });
+      bot.aim = world(plan.aim, bot.index); bot.action = plan.action;
+      bot.nextThink = now + LEVELS[difficulty].reaction;
+    }
+    move(bot.paddle, bot.aim || bot.paddle, gameMode === 'arcade' ? LEVELS[difficulty].speed : .68, dt);
+  });
   if (now < serveAt) return;
   puck.x += puck.vx * dt; puck.y += puck.vy * dt;
   collide(player, -1); bots.forEach(bot => collide(bot.paddle, bot.index));
@@ -263,8 +277,8 @@ function physics(dt, now) {
 }
 
 function start({ keyboard = false } = {}) {
-  if (budgetBlocked) return;
-  if (!connected) { startOnConnect = true; return connect(); }
+  if (changingMode || (gameMode === 'openai' && budgetBlocked)) return;
+  if (gameMode === 'openai' && !connected) { startOnConnect = true; return connect(); }
   if (active || bots.some(bot => bot.thinking) || recorder) return;
   serial += 1; bots = newBots(); player = body(.5, .85, .072); target = { x: .5, y: .85 }; puck = newPuck();
   you = opponents = 0; lastTouch = -1; timeLeft = MATCH_SECONDS; result = '';
@@ -347,21 +361,21 @@ function drawReplay() {
   labels.forEach(([x, y], index) => {
     const point = arena.project(x, y, 2.0, true);
     video.textAlign = 'center'; video.font = '700 28px Arial';
-    const labelWidth = video.measureText(NAMES[index]).width;
+    const labelWidth = video.measureText(opponentName(index)).width;
     video.fillStyle = '#ffffff'; video.fillRect(point.x * 1080 - labelWidth / 2 - 8, 170 + point.y * 1350, labelWidth + 16, 38);
-    video.fillStyle = INKS[index]; video.fillText(NAMES[index], point.x * 1080, 200 + point.y * 1350);
+    video.fillStyle = INKS[index]; video.fillText(opponentName(index), point.x * 1080, 200 + point.y * 1350);
   });
   bots.forEach((bot, index) => {
     const x = 48 + index * 340;
     video.textAlign = 'left'; video.fillStyle = INKS[index]; video.fillRect(x, 1560, 300, 4);
-    video.font = '700 34px Arial'; video.fillText(NAMES[index], x, 1610);
+    video.font = '700 34px Arial'; video.fillText(opponentName(index), x, 1610);
     video.font = '500 30px monospace'; video.fillStyle = '#2f3b4f';
-    video.fillText(`${bot.latency == null ? '-' : bot.latency} ms`, x, 1660);
-    video.fillText(cost(bot), x, 1710);
+    video.fillText(gameMode === 'arcade' ? ROLES[index] : `${bot.latency == null ? '-' : bot.latency} ms`, x, 1660);
+    video.fillText(gameMode === 'arcade' ? LEVELS[difficulty].label : cost(bot), x, 1710);
     video.fillStyle = '#596473'; video.font = '500 26px Arial'; video.fillText(bot.thinking ? 'READING' : bot.action?.toUpperCase() || 'WAITING', x, 1755);
     video.font = '500 23px Arial'; video.fillText(performance.now() < bot.reactionUntil ? bot.taunt : PERSONAS[index], x, 1800);
   });
-  video.textAlign = 'left'; video.fillStyle = '#596473'; video.font = '500 30px Arial'; video.fillText('juke.keff.uk', 48, 1860);
+  video.textAlign = 'left'; video.fillStyle = '#596473'; video.font = '500 30px Arial'; video.fillText(`juke.keff.uk · ${gameMode === 'arcade' ? 'Arcade / ' + LEVELS[difficulty].label : 'OpenAI'}`, 48, 1860);
 }
 
 function hud(now) {
@@ -377,7 +391,7 @@ function hud(now) {
     card.querySelector('[data-latency]').textContent = bot.thinking ? `${Math.round(now - bot.started)} ms` : bot.latency == null ? '- ms' : `${bot.latency} ms`;
     card.querySelector('[data-cost]').textContent = cost(bot);
     const state = card.querySelector('[data-action]');
-    state.textContent = bot.error ? 'Retrying' : bot.thinking ? 'Reading' : bot.action || (connected ? 'Ready' : 'Connecting');
+    state.textContent = bot.error ? 'Retrying' : bot.thinking ? 'Reading' : bot.action || (gameMode === 'arcade' || connected ? 'Ready' : 'Connecting');
     card.dataset.thinking = String(bot.thinking); card.dataset.error = String(Boolean(bot.error));
   });
   const labels = [[-.035, .5], [.5, -.035], [1.035, .5]];
@@ -393,7 +407,7 @@ function frame(now) {
   const dt = previous ? Math.min((now - previous) / 1000, .07) : 0; previous = now;
   if (active && !paused) {
     timeLeft = Math.max(0, Math.ceil((deadline - now) / 1000));
-    if (now >= deadline) finish(you === opponents ? 'Draw' : you > opponents ? 'You win' : 'Models win');
+    if (now >= deadline) finish(you === opponents ? 'Draw' : you > opponents ? 'You win' : opponentWin());
     else {
       accumulator += dt;
       while (accumulator >= 1 / 120 && active) { physics(1 / 120, now); accumulator -= 1 / 120; }
@@ -429,6 +443,64 @@ for (const dialog of document.querySelectorAll('dialog')) {
 $('#help').addEventListener('click', () => openDialog('guide'));
 for (const button of document.querySelectorAll('[data-open]')) button.addEventListener('click', () => openDialog(button.dataset.open, button));
 $('#budget-info').addEventListener('click', () => { openDialog('allowance'); refreshBudget(); });
+
+function updateModeUI() {
+  const arcade = gameMode === 'arcade';
+  document.body.dataset.mode = gameMode;
+  $('#mode-label').textContent = arcade ? 'Arcade' : 'OpenAI';
+  $('#mode-button').setAttribute('aria-label', `Game mode: ${arcade ? 'Arcade, ' + LEVELS[difficulty].label : 'OpenAI'}. Change mode`);
+  $('#budget-info').hidden = arcade; $('#unlimited-play').hidden = !arcade;
+  $('#guide-mode').textContent = arcade
+    ? 'Arcade opponents predict the puck and its rebounds. Change the difficulty from the Arcade button above the rink.'
+    : 'Each opponent chooses its next move through a real API call. Its response time and cost appear beside its name.';
+  bots.forEach((bot, index) => {
+    const card = $(`.opponents [data-opponent="${index}"]`);
+    card.querySelector('h2').textContent = arcade ? ROLES[index] : NAMES[index];
+    const kind = card.querySelector('.model-kind');
+    kind.textContent = arcade ? LEVELS[difficulty].label : index === 0 ? 'Decisions ↗' : 'Responses';
+    if (index === 0) { kind.disabled = arcade; kind.removeAttribute('title'); }
+    card.querySelector('.measurements').hidden = arcade;
+    $(`[data-goal="${index}"]`).textContent = opponentName(index);
+  });
+  play.textContent = !arcade && budgetBlocked ? 'Back tomorrow' : arcade || connected ? 'Play' : 'Retry connection';
+  setNotice(''); controls();
+}
+function settingsPreview() {
+  const arcade = $('#mode-arcade').checked;
+  $('#difficulty-options').hidden = !arcade;
+  $('#mode-description').textContent = arcade ? 'Classic game AI. Unlimited play, no API credits.' : 'Three real models. $0.50 of API calls covered daily.';
+}
+$('#mode-button').addEventListener('click', () => {
+  $(`#mode-${gameMode}`).checked = true;
+  $(`#level-${difficulty}`).checked = true;
+  $('#apply-mode').textContent = active ? 'New match' : 'Play';
+  settingsPreview(); openDialog('play-settings', $('#mode-button'));
+});
+$('#play-settings').addEventListener('change', settingsPreview);
+$('#play-settings-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  if (changingMode) return;
+  changingMode = true; $('#apply-mode').disabled = true;
+  const form = new FormData(event.currentTarget);
+  // Invalidate old asynchronous responses before resetting the defenders.
+  startOnConnect = false; resumeAfterGuide = false;
+  if (active) finish('Match ended');
+  bots.forEach(bot => clearTimeout(bot.timer)); serial += 1;
+  if (recorder) {
+    const previousRecorder = recorder;
+    await new Promise(resolve => {
+      previousRecorder.addEventListener('stop', resolve, { once: true });
+      if (previousRecorder.state !== 'inactive') previousRecorder.stop();
+    });
+  }
+  gameMode = form.get('mode'); difficulty = form.get('difficulty');
+  remember('juke-mode', gameMode); remember('juke-level', difficulty);
+  bots = newBots(); reactionUntil = 0; $('#goal-reaction').hidden = true;
+  $('#result').hidden = true; you = opponents = 0; timeLeft = MATCH_SECONDS;
+  changingMode = false; $('#apply-mode').disabled = false;
+  updateModeUI(); $('#play-settings').close(); start();
+});
+
 const shareApp = $('#share-app');
 let shareFeedbackTimer;
 shareApp.addEventListener('click', async () => {
@@ -471,9 +543,9 @@ function updateBudget(value) {
   $('#budget-reserved').hidden = !(value.heldUsd + value.uncertainUsd > 0);
   $('#budget-reserved').textContent = 'A small amount is reserved for calls still awaiting usage. Calls with unconfirmed usage keep that reserve until tomorrow.';
   if (value.remainingUsd <= 0) budgetBlocked = true;
-  if (value.remainingUsd > .01 && budgetBlocked) { budgetBlocked = false; play.textContent = serial ? 'Play again' : 'Play'; controls(); }
+  if (value.remainingUsd > .01 && budgetBlocked) { budgetBlocked = false; if (gameMode === 'openai') { play.textContent = serial ? 'Play again' : 'Play'; controls(); } }
 }
-async function refreshBudget() { try { const response = await fetch('/api/budget', { cache: 'no-store' }); if (response.ok) updateBudget((await response.json()).budget); } catch {} }
+async function refreshBudget() { if (gameMode !== 'openai') return; try { const response = await fetch('/api/budget', { cache: 'no-store' }); if (response.ok) updateBudget((await response.json()).budget); } catch {} }
 replay.addEventListener('click', async () => {
   if (!clip) return;
   const file = new File([clip], `juke-${new Date().toISOString().slice(0, 10)}.${clip.type.includes('mp4') ? 'mp4' : 'webm'}`, { type: clip.type });
@@ -532,5 +604,6 @@ $('#unsubscribe').addEventListener('click', async () => {
 window.addEventListener('focus', refreshBudget);
 document.addEventListener('visibilitychange', () => { heldKeys.clear(); if (document.hidden) startOnConnect = false; if (document.hidden && active && !paused) togglePause(); if (!document.hidden) refreshBudget(); });
 window.addEventListener('blur', () => { pointerHeld = false; heldKeys.clear(); });
+updateModeUI();
 requestAnimationFrame(frame);
 connect();

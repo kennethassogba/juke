@@ -21,7 +21,7 @@
   <header class="topbar">
     <a class="brand" href="/" aria-label="JUKE home">JUKE<span>.</span></a>
     <div class="header-controls">
-      <button id="obstacles" class="toggle" aria-pressed="true" type="button"><span class="toggle-dot" aria-hidden="true"></span>Bumpers</button>
+      <button id="mode-button" class="toggle" type="button" aria-haspopup="dialog"><span id="mode-label">OpenAI</span><svg class="icon small" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button>
       <div class="share-app-control"><button id="share-app" class="help" type="button" aria-label="Share JUKE" title="Share JUKE"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path class="share-symbol" d="M12 15V3m-4 4 4-4 4 4M7 11H5v10h14V11h-2"/><path class="copied-symbol" d="m5 12 4 4L19 6"/></svg></button><span id="share-status" role="status" hidden></span></div>
       <button id="help" class="help" type="button" aria-label="How to play" aria-haspopup="dialog">?</button>
     </div>
@@ -72,7 +72,7 @@
       <button id="restart" type="button" hidden>End match</button>
       <button id="replay" type="button" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m-4 4 4-4 4 4M7 11H5v10h14V11h-2"/></svg>Share replay</button>
     </div>
-    <div class="daily-play"><button id="budget-info" class="text-button" aria-haspopup="dialog"><span id="budget-summary">$0.50 daily play</span><svg class="icon small" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg></button><button class="text-button" data-open="newsletter">Get updates</button></div>
+    <div class="daily-play"><span id="unlimited-play" hidden>Unlimited play</span><button id="budget-info" class="text-button" aria-haspopup="dialog"><span id="budget-summary">$0.50 daily play</span><svg class="icon small" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg></button><button class="text-button" data-open="newsletter">Get updates</button></div>
     <aside id="install-nudge" class="install-nudge" hidden aria-label="Install JUKE"><img src="/icons/icon-192.png" width="40" height="40" alt=""><span>Keep JUKE on your home screen</span><button id="install" class="text-button">Add</button><button id="dismiss-install" class="icon-button" aria-label="Dismiss install suggestion">×</button></aside>
   </main>
   <footer>
@@ -83,6 +83,24 @@
       <a href="https://get.keff.uk" target="_blank" rel="noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="insta-dot" cx="17.5" cy="6.5" r="1"/></svg></a>
     </nav>
   </footer>
+  <dialog id="play-settings" aria-labelledby="play-settings-title">
+    <button class="close" data-close aria-label="Close game settings">×</button>
+    <h2 id="play-settings-title">Your game</h2>
+    <form id="play-settings-form">
+      <fieldset class="mode-options"><legend class="sr-only">Game mode</legend>
+        <label><input id="mode-openai" type="radio" name="mode" value="openai" checked><span>OpenAI</span></label>
+        <label><input id="mode-arcade" type="radio" name="mode" value="arcade"><span>Arcade</span></label>
+      </fieldset>
+      <p id="mode-description">Three real models. $0.50 of API calls covered daily.</p>
+      <fieldset id="difficulty-options" hidden><legend>Difficulty</legend><div class="level-options">
+        <label><input id="level-easy" type="radio" name="difficulty" value="easy"><span>Easy<small>Find your rhythm</small></span></label>
+        <label><input id="level-normal" type="radio" name="difficulty" value="normal"><span>Normal<small>A fair challenge</small></span></label>
+        <label><input id="level-hard" type="radio" name="difficulty" value="hard" checked><span>Hard<small>Quick on the return</small></span></label>
+        <label><input id="level-expert" type="radio" name="difficulty" value="expert"><span>Expert<small>No time to hesitate</small></span></label>
+      </div></fieldset>
+      <div class="settings-bottom"><button id="obstacles" class="toggle" aria-pressed="true" type="button"><span class="toggle-dot" aria-hidden="true"></span>Bumpers</button><button id="apply-mode" class="play" type="submit">Play</button></div>
+    </form>
+  </dialog>
   <dialog id="share-app-guide" aria-labelledby="share-app-title">
     <button class="close" data-close aria-label="Close sharing">×</button>
     <h2 id="share-app-title">Share JUKE</h2>
@@ -94,7 +112,7 @@
     <h2 id="guide-title">How to play</h2>
     <p>Touch the rink to start. Move the white paddle with your mouse, finger or arrow keys. Hit the puck into any coloured goal and protect your own.</p>
     <p>You play against all three opponents at once. First to 5 wins. After 40 seconds, the higher score wins.</p>
-    <p>Each opponent chooses its next move through a real API call. You can see how long it takes below the rink.</p>
+    <p id="guide-mode">Each opponent chooses its next move through a real API call. Its response time and cost appear beside its name.</p>
     <button class="text-button" data-open="experiment">About the experiment <span aria-hidden="true">↗</span></button>
   </dialog>
   <dialog id="experiment" aria-labelledby="experiment-title">
@@ -134,7 +152,7 @@
     <button class="close" data-close aria-label="Close install instructions">×</button>
     <h2 id="install-title">Add JUKE</h2>
     <p id="install-instructions"></p>
-    <p>Launch from your home screen. An internet connection is needed for the AI opponents.</p>
+    <p>Launch from your home screen. OpenAI mode needs an internet connection. Arcade works offline once the app has loaded.</p>
   </dialog>
   <dialog id="share-guide" aria-labelledby="share-title">
     <button class="close" data-close aria-label="Close replay sharing">×</button>
