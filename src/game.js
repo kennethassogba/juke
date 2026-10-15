@@ -6,7 +6,30 @@ const NAMES = ['GPT-6 Luna', 'GPT-5.6 Luna', 'GPT-4.1 nano'];
 const PERSONAS = ['Pip', 'Momo', 'Bibi'];
 // Cosmetic reactions to real goals; these never control a defender.
 const TAUNTS = [['Lucky shot!', 'Again? Really?', 'I saw nothing.'], ['Just warming up!', 'Okay, your turn is over.', 'Rematch. Now.'], ['Rude. Cute, but rude.', 'You win this one.', 'No more freebies!']];
+const GOAL_TAUNTS = [
+  ['Tiny paws. Big goal.', 'You left a little gap.', 'Did you blink?', 'That corner looked lonely.', 'Oops. Right past you.', 'Saving that one for later?'],
+  ['Catch me if you can!', 'Straight past your paddle.', 'I meant to do that!', 'The net needed a hug.', 'Your paddle needs a coffee.', 'Can we do that again?'],
+  ['Cute shot, right?', 'Sending hugs. And pucks.', 'A little kiss for your net.', 'Sorry. Still celebrating.', 'Keep the replay, okay?', 'You can have the next one.'],
+];
+const OWN_GOAL_TAUNTS = ['A gift? For us?', 'We accept donations.', 'You can join our team.', 'That was very generous.'];
 const CHEERS = ["You've got Kasparov sweating.", 'One point for the humans.', "That wasn't in the training data.", 'The servers felt that one.', 'Someone check on the machines.'];
+// Shuffle bags survive match restarts, so every line gets a turn.
+const reactionLines = new Map();
+function nextLine(lines) {
+  let bag = reactionLines.get(lines);
+  if (!bag) { bag = { remaining: [], last: null }; reactionLines.set(lines, bag); }
+  if (!bag.remaining.length) {
+    bag.remaining = [...lines];
+    for (let i = bag.remaining.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [bag.remaining[i], bag.remaining[j]] = [bag.remaining[j], bag.remaining[i]];
+    }
+    const end = bag.remaining.length - 1;
+    if (end > 0 && bag.remaining[end] === bag.last) [bag.remaining[0], bag.remaining[end]] = [bag.remaining[end], bag.remaining[0]];
+  }
+  bag.last = bag.remaining.pop();
+  return bag.last;
+}
 const INKS = ['#216e9d', '#a94523', '#96366f'];
 const ACTIONS = new Set(['intercept', 'press', 'left', 'center', 'right']);
 const BUMPERS = [{ x: .34, y: .46, radius: .045 }, { x: .66, y: .54, radius: .045 }];
@@ -52,7 +75,7 @@ function newBots() {
   return MODELS.map((model, index) => ({
     model, index, paddle: index === 0 ? body(.15, .5, .065) : index === 1 ? body(.5, .15, .065) : body(.85, .5, .065),
     action: null, aim: null, thinking: false, latency: null, started: 0, cost: 0, knownCost: true,
-    goals: 0, conceded: 0, reactionUntil: 0, taunt: '', timer: 0, retry: 0, error: '', nextThink: 0,
+    goals: 0, conceded: 0, reactionUntil: 0, celebrating: false, taunt: '', timer: 0, retry: 0, error: '', nextThink: 0,
   }));
 }
 
@@ -202,16 +225,27 @@ function collide(item, touch = null, fixed = false) {
     if (touch !== null) lastTouch = touch;
   }
 }
-function showGoalReaction(side, now) {
+function showGoalReaction(side, now, team = false) {
   const reaction = $('#goal-reaction');
-  reaction.querySelector('.reaction-avatar').replaceChildren($(`.opponents [data-opponent="${side}"] .avatar`).cloneNode(true));
+  const avatars = reaction.querySelector('.reaction-avatar');
+  avatars.replaceChildren();
+  for (const index of team ? [0, 1, 2] : [side]) {
+    const member = document.createElement('span');
+    member.className = 'reaction-member'; member.dataset.opponent = String(index);
+    member.append($(`.opponents [data-opponent="${index}"] .avatar`).cloneNode(true));
+    if (team) { const name = document.createElement('span'); name.textContent = PERSONAS[index]; member.append(name); }
+    avatars.append(member);
+  }
   reaction.dataset.character = String(side);
-  reaction.dataset.reacting = 'true';
-  reaction.querySelector('.reaction-name').textContent = PERSONAS[side];
-  reaction.querySelector('.reaction-quote').textContent = bots[side].taunt;
-  cheer = CHEERS[(you - 1) % CHEERS.length];
+  reaction.dataset.reacting = String(!team);
+  reaction.dataset.celebrating = String(team);
+  const quote = side < 0 ? nextLine(OWN_GOAL_TAUNTS) : bots[side].taunt;
+  reaction.querySelector('.reaction-name').textContent = team ? side < 0 ? 'Own goal' : `${PERSONAS[side]} scores` : PERSONAS[side];
+  reaction.querySelector('.reaction-quote').textContent = quote;
+  cheer = team ? quote : nextLine(CHEERS);
   reaction.querySelector('.reaction-cheer').textContent = cheer;
-  reactionUntil = now + 2800;
+  reaction.querySelector('.reaction-cheer').hidden = team;
+  reactionUntil = now + 3000;
   reaction.hidden = false;
 }
 function goal(side, now) {
@@ -220,15 +254,16 @@ function goal(side, now) {
     if (lastTouch >= 0) {
       bots[lastTouch].goals += 1;
       arena.goal(.5, .93, COLORS[lastTouch]);
-      setNotice(`${opponentName(lastTouch)} scores`);
     } else {
       arena.goal(.5, .93, '#f1f5ff');
-      setNotice('Own goal');
     }
+    bots.forEach((bot, index) => { bot.celebrating = true; bot.reactionUntil = now + 3000; bot.taunt = nextLine(GOAL_TAUNTS[index]); });
+    setNotice('');
+    showGoalReaction(lastTouch, now, true);
   } else {
     bots[side].conceded += 1; you += 1;
-    bots.forEach(bot => { bot.reactionUntil = 0; });
-    bots[side].taunt = TAUNTS[side][(bots[side].conceded - 1) % TAUNTS[side].length];
+    bots.forEach(bot => { bot.reactionUntil = 0; bot.celebrating = false; });
+    bots[side].taunt = nextLine(TAUNTS[side]);
     bots[side].reactionUntil = now + 2600;
     const positions = [[.07, .5], [.5, .07], [.93, .5]];
     arena.goal(...positions[side], '#f1f5ff');
@@ -373,7 +408,7 @@ function drawReplay() {
     video.fillText(gameMode === 'arcade' ? ROLES[index] : `${bot.latency == null ? '-' : bot.latency} ms`, x, 1660);
     video.fillText(gameMode === 'arcade' ? LEVELS[difficulty].label : cost(bot), x, 1710);
     video.fillStyle = '#596473'; video.font = '500 26px Arial'; video.fillText(bot.thinking ? 'READING' : bot.action?.toUpperCase() || 'WAITING', x, 1755);
-    video.font = '500 23px Arial'; video.fillText(performance.now() < bot.reactionUntil ? bot.taunt : PERSONAS[index], x, 1800);
+    video.font = '500 23px Arial'; video.fillText(performance.now() < bot.reactionUntil ? bot.taunt : PERSONAS[index], x, 1800, 300);
   });
   video.textAlign = 'left'; video.fillStyle = '#596473'; video.font = '500 30px Arial'; video.fillText(`juke.keff.uk · ${gameMode === 'arcade' ? 'Arcade / ' + LEVELS[difficulty].label : 'OpenAI'}`, 48, 1860);
 }
@@ -384,7 +419,8 @@ function hud(now) {
   bots.forEach((bot, index) => {
     const card = document.querySelector(`[data-opponent="${index}"]`);
     const reacting = now < bot.reactionUntil;
-    card.dataset.reacting = String(reacting);
+    card.dataset.reacting = String(reacting && !bot.celebrating);
+    card.dataset.celebrating = String(reacting && bot.celebrating);
     const taunt = card.querySelector('[data-taunt]');
     taunt.hidden = true;
     taunt.textContent = reacting ? bot.taunt : '';
