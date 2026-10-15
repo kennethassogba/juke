@@ -429,6 +429,37 @@ for (const dialog of document.querySelectorAll('dialog')) {
 $('#help').addEventListener('click', () => openDialog('guide'));
 for (const button of document.querySelectorAll('[data-open]')) button.addEventListener('click', () => openDialog(button.dataset.open, button));
 $('#budget-info').addEventListener('click', () => { openDialog('allowance'); refreshBudget(); });
+const shareApp = $('#share-app');
+let shareFeedbackTimer;
+shareApp.addEventListener('click', async () => {
+  const shareData = { title: 'JUKE', text: 'Play air hockey against three AI opponents.', url: 'https://juke.keff.uk/' };
+  const wasPlaying = active && !paused;
+  let openedNativeShare = false;
+  shareApp.disabled = true;
+  try {
+    if (navigator.share) {
+      if (wasPlaying) togglePause();
+      openedNativeShare = true;
+      try { await navigator.share(shareData); return; }
+      catch (error) { if (error.name === 'AbortError') return; }
+    }
+    try {
+      await navigator.clipboard.writeText(shareData.url);
+      clearTimeout(shareFeedbackTimer);
+      shareApp.dataset.copied = 'true';
+      $('#share-status').textContent = 'Link copied'; $('#share-status').hidden = false;
+      shareFeedbackTimer = setTimeout(() => { delete shareApp.dataset.copied; $('#share-status').hidden = true; }, 2400);
+    } catch {
+      openDialog('share-app-guide', shareApp);
+      if (wasPlaying) resumeAfterGuide = true;
+      $('#app-link').focus(); $('#app-link').select();
+    }
+  } finally {
+    shareApp.disabled = false;
+    if (openedNativeShare && wasPlaying && active && paused && !document.hidden && !document.querySelector('dialog[open]')) togglePause();
+  }
+});
+
 function updateBudget(value) {
   if (!value || (dailyBudget && value.updatedAt < dailyBudget.updatedAt)) return;
   dailyBudget = value;

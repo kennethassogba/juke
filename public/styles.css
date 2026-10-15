@@ -329,3 +329,13 @@ input:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
  .opponent-heading, .decision { grid-column: 2; }
  .measurements { grid-column: 1 / -1; }
 }
+
+/* Keep the score visible through the rink without extra rendering passes. */
+#arena { opacity: .84; }
+.share-app-control { position: relative; }
+#share-app { display: grid; place-items: center; }
+.copied-symbol, [data-copied="true"] .share-symbol { display: none; }
+[data-copied="true"] .copied-symbol { display: block; }
+#share-status { position: absolute; top: calc(100% + 6px); right: 0; z-index: 6; width: max-content; padding: 6px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fffffff2; color: var(--ink); font-size: 14px; pointer-events: none; }
+#share-app-guide label { display: block; font-size: 14px; color: var(--muted); }
+#app-link { width: 100%; margin-top: 8px; padding: 12px; border: 1px solid #788391; border-radius: 10px; background: white; color: var(--ink); font: 16px/1.5 Arial, sans-serif; user-select: text; -webkit-user-select: text; }

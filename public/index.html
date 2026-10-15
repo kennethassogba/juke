@@ -22,6 +22,7 @@
     <a class="brand" href="/" aria-label="JUKE home">JUKE<span>.</span></a>
     <div class="header-controls">
       <button id="obstacles" class="toggle" aria-pressed="true" type="button"><span class="toggle-dot" aria-hidden="true"></span>Bumpers</button>
+      <div class="share-app-control"><button id="share-app" class="help" type="button" aria-label="Share JUKE" title="Share JUKE"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path class="share-symbol" d="M12 15V3m-4 4 4-4 4 4M7 11H5v10h14V11h-2"/><path class="copied-symbol" d="m5 12 4 4L19 6"/></svg></button><span id="share-status" role="status" hidden></span></div>
       <button id="help" class="help" type="button" aria-label="How to play" aria-haspopup="dialog">?</button>
     </div>
   </header>
@@ -82,6 +83,12 @@
       <a href="https://get.keff.uk" target="_blank" rel="noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="insta-dot" cx="17.5" cy="6.5" r="1"/></svg></a>
     </nav>
   </footer>
+  <dialog id="share-app-guide" aria-labelledby="share-app-title">
+    <button class="close" data-close aria-label="Close sharing">×</button>
+    <h2 id="share-app-title">Share JUKE</h2>
+    <label for="app-link">Copy this link</label>
+    <input id="app-link" type="url" value="https://juke.keff.uk/" readonly spellcheck="false">
+  </dialog>
   <dialog id="guide" aria-labelledby="guide-title">
     <button id="close-guide" class="close" aria-label="Close guide" type="button">×</button>
     <h2 id="guide-title">How to play</h2>
