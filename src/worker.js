@@ -164,14 +164,14 @@ async function mailingList(request, env) {
   catch { return json({ message: 'Enter a valid email address.' }, 400); }
   if (new URL(request.url).pathname === '/api/unsubscribe') {
     if (typeof data.token !== 'string' || !/^[a-f0-9-]{36}$/.test(data.token)) return json({ message: 'This removal link is invalid.' }, 400);
-    await env.MAILING_LIST.prepare('DELETE FROM subscribers WHERE unsubscribe_token = ?').bind(data.token).run();
+    await env.MAILING_LIST.prepare("DELETE FROM mailing_subscriptions WHERE site = 'juke' AND unsubscribe_token = ?").bind(data.token).run();
     return json({ message: 'You have left the list.' });
   }
   const email = typeof data.email === 'string' ? data.email.trim().toLowerCase() : '';
   if (data.website) return json({ message: 'You’re on the list.' });
   if (data.consent !== true || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ message: 'Enter your email and agree to receive JUKE updates.' }, 400);
   const token = crypto.randomUUID();
-  const saved = await env.MAILING_LIST.prepare('INSERT OR IGNORE INTO subscribers (email, consent_at, consent_text, unsubscribe_token) VALUES (?, ?, ?, ?)')
+  const saved = await env.MAILING_LIST.prepare("INSERT OR IGNORE INTO mailing_subscriptions (email, site, created_at, consent_text, unsubscribe_token) VALUES (?, 'juke', ?, ?, ?)")
     .bind(email, new Date().toISOString(), 'I agree to receive JUKE updates from keff by email.', token).run();
   return json({ message: 'You’re on the list.', token: saved.meta.changes ? token : undefined });
 }

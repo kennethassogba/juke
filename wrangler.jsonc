@@ -3,28 +3,63 @@
   "name": "juke-air-hockey",
   "main": "src/worker.js",
   "compatibility_date": "2026-10-13",
-  "secrets": { "required": ["OPENAI_API_KEY"] },
-  "d1_databases": [{ "binding": "MAILING_LIST", "database_name": "juke-mailing-list", "database_id": "62483e6a-171c-4248-8916-7c0ccd8d8360" }],
+  "secrets": {
+    "required": [
+      "OPENAI_API_KEY"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "MAILING_LIST",
+      "database_name": "keff-updates",
+      "database_id": "82526bcf-d7a9-44b0-8da6-1a64e0b9ae39"
+    }
+  ],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*", "/"]
+    "run_worker_first": [
+      "/api/*",
+      "/"
+    ]
   },
   "durable_objects": {
     "bindings": [
-      { "name": "RATE_LIMITER", "class_name": "IpRateLimiter" },
-      { "name": "BROWSER_BUDGET", "class_name": "BrowserBudget" }
+      {
+        "name": "RATE_LIMITER",
+        "class_name": "IpRateLimiter"
+      },
+      {
+        "name": "BROWSER_BUDGET",
+        "class_name": "BrowserBudget"
+      }
     ]
   },
   "migrations": [
-    { "tag": "v1", "new_sqlite_classes": ["IpRateLimiter"] },
-    { "tag": "v2", "new_sqlite_classes": ["BrowserBudget"] }
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "IpRateLimiter"
+      ]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": [
+        "BrowserBudget"
+      ]
+    }
   ],
   "routes": [
-    { "pattern": "juke.keff.uk", "custom_domain": true }
+    {
+      "pattern": "juke.keff.uk",
+      "custom_domain": true
+    }
   ],
   "observability": {
     "enabled": true,
-    "traces": { "enabled": true, "head_sampling_rate": 0.1 }
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 0.1
+    }
   }
 }
