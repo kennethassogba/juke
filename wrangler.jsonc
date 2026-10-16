@@ -35,20 +35,6 @@
       }
     ]
   },
-  "migrations": [
-    {
-      "tag": "v1",
-      "new_sqlite_classes": [
-        "IpRateLimiter"
-      ]
-    },
-    {
-      "tag": "v2",
-      "new_sqlite_classes": [
-        "BrowserBudget"
-      ]
-    }
-  ],
   "routes": [
     {
       "pattern": "juke.keff.uk",
@@ -60,6 +46,16 @@
     "traces": {
       "enabled": true,
       "head_sampling_rate": 0.1
+    }
+  },
+  "exports": {
+    "IpRateLimiter": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    },
+    "BrowserBudget": {
+      "type": "durable-object",
+      "storage": "sqlite"
     }
   }
 }
