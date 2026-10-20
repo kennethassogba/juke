@@ -18,10 +18,7 @@
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
-    "run_worker_first": [
-      "/api/*",
-      "/"
-    ]
+    "run_worker_first": true
   },
   "durable_objects": {
     "bindings": [
@@ -36,6 +33,10 @@
     ]
   },
   "routes": [
+    {
+      "pattern": "play.keff.uk",
+      "custom_domain": true
+    },
     {
       "pattern": "juke.keff.uk",
       "custom_domain": true
