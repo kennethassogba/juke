@@ -1,7 +1,7 @@
 const PREFIX='play-store-';const CACHE=PREFIX+'v2';
 const HOME='/';
 const SHELL=[HOME,'/store/app.js','/store/app.css','/manifest.webmanifest','/art/play-192.png','/art/play-512.png'];
-const essential=["/art/juke.jpg","/juke/icons/icon-192.png","/art/harness-cover.svg","/art/harness-tycoon.svg","/art/tokens-cover.svg","/art/token-factory.svg"];
+const essential=["/art/juke.jpg","/juke/icons/icon-192.png","/apps/juke","/art/harness-cover.svg","/art/harness-tycoon.svg","/apps/harness-tycoon","/art/tokens-cover.svg","/art/token-factory.svg","/apps/token-factory"];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll([...new Set([...SHELL,...essential])])).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith(PREFIX)&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin||u.pathname.includes('/api/')||e.request.headers.get('accept')?.includes('text/markdown'))return;

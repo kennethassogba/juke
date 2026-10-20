@@ -24,7 +24,7 @@ await writeFile(new URL('manifest.webmanifest',pub),JSON.stringify(manifest('','
 const sw=async(slug)=>`const PREFIX='${slug?'play-'+slug:'play-store'}-';const CACHE=PREFIX+'v2';
 const HOME='${slug?'/'+slug+'/':'/'}';
 const SHELL=[HOME,'/store/app.js','/store/app.css','${slug?'/'+slug+'/manifest.webmanifest':'/manifest.webmanifest'}',${[192,512].map(n=>`'/art/${slug||'play'}-${n}.png'`).join(',')}];
-const essential=${JSON.stringify(slug?Object.values(JSON.parse(await readFile(new URL('content/tcg/model-marketing.json',root)))).map(m=>m.asset):games.flatMap(g=>[g.art,g.icon]))};
+const essential=${JSON.stringify(slug?Object.values(JSON.parse(await readFile(new URL('content/tcg/model-marketing.json',root)))).map(m=>m.asset):games.flatMap(g=>[g.art,g.icon,'/apps/'+g.slug]))};
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll([...new Set([...SHELL,...essential])])).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith(PREFIX)&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin||u.pathname.includes('/api/')||e.request.headers.get('accept')?.includes('text/markdown'))return;
@@ -53,6 +53,10 @@ for(const dir of ['.well-known/agent-skills/','.well-known/mcp/'])await mkdir(ne
 const skill='# Play catalogue\n\nRead games with GET /api/games?q={query} or GET /api/games/{slug}. Read controls and model configurations before describing a game.\n\nMCP endpoint: https://play.keff.uk/mcp. Tools: search_games, get_game. Browser WebMCP exposes the same tools. Search updates the visible results.\n\nThe tools are read-only and do not start matches, spend credits or change subscriptions. Never claim that Token Factory or Harness Tycoon makes live model calls. JUKE OpenAI mode uses real API calls and its displayed browser allowance.\n';
 await writeFile(new URL('.well-known/agent-skills/SKILL.md',pub),skill);
 await writeFile(new URL('.well-known/agent-skills/index.json',pub),JSON.stringify({skills:[{name:'play-catalogue',description:'Find games, controls and install links.',url:origin+'/.well-known/agent-skills/SKILL.md',sha256:createHash('sha256').update(skill).digest('hex')}]}));
-await writeFile(new URL('.well-known/mcp/server-card.json',pub),JSON.stringify({$schema:'https://static.modelcontextprotocol.io/schemas/mcp-server-card/v1.json',version:'1.0',serverInfo:{name:'play',version:'1.0.0'},description:'Read-only Play game catalogue.',transport:{type:'streamable-http',url:origin+'/mcp'},capabilities:{tools:{}}}));
+const serverCard={$schema:'https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json',name:'uk.keff/play',title:'Play',version:'1.0.0',description:'Read-only Play game catalogue.',websiteUrl:origin+'/',remotes:[{type:'streamable-http',url:origin+'/mcp',supportedProtocolVersions:['2025-03-26']}]};
+await writeFile(new URL('.well-known/mcp/server-card.json',pub),JSON.stringify(serverCard));
+await mkdir(new URL('mcp/',pub),{recursive:true});
+await writeFile(new URL('mcp/server-card',pub),JSON.stringify(serverCard));
+
 await writeFile(new URL('.well-known/api-catalog',pub),JSON.stringify({linkset:[{anchor:origin+'/', 'service-desc':[{href:origin+'/openapi.json',type:'application/vnd.oai.openapi+json'}]}]}));
 console.log('Built Play and three game pages with catalogue discovery.');

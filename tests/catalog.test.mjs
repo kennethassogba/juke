@@ -16,12 +16,12 @@ test('catalogue search shares controls and genuine model configuration',async()=
 test('Markdown, discovery documents and static detail pages are available without JavaScript',async()=>{
  for(const path of ['/','/apps/juke','/apps/harness-tycoon','/apps/token-factory']){const html=await (await get(path)).text();assert.match(html,/<h[12]/);assert.match(html,/application\/ld\+json/);assert.match(html,/summary_large_image/);assert.doesNotMatch(html,/Keep a game on|Made by|©|store-sidebar|store-mobile-nav/);}
  const md=await get('/apps/juke',{headers:{accept:'text/markdown'}});assert.match(md.headers.get('content-type'),/text\/markdown/);assert.match(await md.text(),/Decisions API/);assert.equal(md.headers.get('vary'),'Accept');
- for(const path of ['/llms.txt','/index.md','/openapi.json','/.well-known/api-catalog','/.well-known/agent-skills/index.json','/.well-known/agent-skills/SKILL.md','/.well-known/mcp/server-card.json','/apps/juke.md'])assert.equal((await get(path)).status,200,path);
+ for(const path of ['/llms.txt','/index.md','/openapi.json','/.well-known/api-catalog','/.well-known/agent-skills/index.json','/.well-known/agent-skills/SKILL.md','/.well-known/mcp/server-card.json','/mcp/server-card','/apps/juke.md'])assert.equal((await get(path)).status,200,path);
  assert.equal((await get('/search?q=arcade')).headers.get('location'),origin+'/?q=arcade');
 });
 async function mcp(body,extra={}){return get('/mcp',{method:'POST',headers:{'content-type':'application/json',accept:'application/json, text/event-stream',...extra},body:JSON.stringify(body)});}
 test('MCP initializes and exposes only two validated read-only catalogue tools',async()=>{
- const init=await mcp({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2025-03-26',capabilities:{},clientInfo:{name:'play-tests',version:'1'}}});assert.equal(init.status,200);assert.equal((await init.json()).result.serverInfo.name,'play');
+ const init=await mcp({jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2025-03-26',capabilities:{},clientInfo:{name:'play-tests',version:'1'}}});assert.equal(init.status,200);assert.equal((await init.json()).result.serverInfo.name,'uk.keff/play');
  const list=await(await mcp({jsonrpc:'2.0',id:2,method:'tools/list',params:{}})).json();assert.deepEqual(list.result.tools.map(t=>t.name),['search_games','get_game']);assert.ok(list.result.tools.every(t=>t.annotations.readOnlyHint&&!t.annotations.destructiveHint));
  const result=await(await mcp({jsonrpc:'2.0',id:3,method:'tools/call',params:{name:'search_games',arguments:{query:'offline'}}})).json();assert.deepEqual(JSON.parse(result.result.content[0].text).games.map(g=>g.slug),['harness-tycoon','token-factory']);
  const invalid=await(await mcp({jsonrpc:'2.0',id:4,method:'tools/call',params:{name:'get_game',arguments:{slug:'juke',start:true}}})).json();assert.equal(invalid.result.isError,true);

@@ -19,7 +19,7 @@ export async function routeSite(request,env){
  if(path.startsWith('/juke/api/'))return null;
  if(path==='/mcp')return handleMcp(request);
  if(!['GET','HEAD'].includes(request.method))return new Response('Use GET to open a game.',{status:405,headers:{allow:'GET, HEAD'}});
- const discoveryHeaders={...security,'cache-control':'no-cache','link':`<${origin}/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", <${origin}/llms.txt>; rel="help", <${origin}/mcp>; rel="mcp"`};
+ const discoveryHeaders={...security,'cache-control':'no-cache','link':`<${origin}/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json", <${origin}/llms.txt>; rel="help", <${origin}/mcp>; rel="mcp", <${origin}/mcp/server-card>; rel="describedby"; type="application/mcp-server-card+json"`};
  if(path==='/api/games'||path.startsWith('/api/games/')){
   try{const data=path==='/api/games'?runCatalogTool('search_games',{query:url.searchParams.get('q')||''}):runCatalogTool('get_game',{slug:path.slice('/api/games/'.length)});return new Response(request.method==='HEAD'?null:JSON.stringify(data),{headers:{...discoveryHeaders,'content-type':'application/json; charset=utf-8'}});}
   catch(error){return new Response(request.method==='HEAD'?null:JSON.stringify({error:error.message}),{status:path==='/api/games'?400:404,headers:{...discoveryHeaders,'content-type':'application/json; charset=utf-8'}});}
@@ -37,5 +37,6 @@ export async function routeSite(request,env){
  if(path.endsWith('/sw.js')||path==='/sw.js'||path.endsWith('manifest.webmanifest')||upstream.headers.get('content-type')?.includes('text/html'))headers.set('cache-control','no-cache');
  if(path.endsWith('/sw.js'))headers.set('service-worker-allowed',path.slice(0,-5));
  if(path==='/'||game)headers.set('vary','Accept');
+ if(path==='/mcp/server-card'||path==='/.well-known/mcp/server-card.json')headers.set('content-type','application/mcp-server-card+json');
  return new Response(request.method==='HEAD'?null:upstream.body,{status:upstream.status,headers});
 }

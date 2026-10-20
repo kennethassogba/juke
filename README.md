@@ -16,7 +16,7 @@ Each game has its own manifest, install icon and service-worker scope. The two s
 
 Search with `GET /api/games?q=…`, or read `GET /api/games/{slug}`. The same catalogue is available through browser WebMCP (`search_games`, `get_game`) and Streamable HTTP MCP at `/mcp`. Tools only read the catalogue. They do not start matches or spend credits.
 
-Discovery: `/llms.txt`, `/openapi.json`, `/.well-known/api-catalog` and `/.well-known/mcp/server-card.json`. Store and game detail pages include HTML content, structured data and per-game social previews. Request `Accept: text/markdown` for Markdown.
+Discovery: `/llms.txt`, `/openapi.json`, `/.well-known/api-catalog` and `/mcp/server-card`. Store and game detail pages include HTML content, structured data and per-game social previews. Request `Accept: text/markdown` for Markdown.
 
 ## JUKE experiment
 

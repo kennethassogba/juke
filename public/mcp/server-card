@@ -1,0 +1,1 @@
+{"$schema":"https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json","name":"uk.keff/play","title":"Play","version":"1.0.0","description":"Read-only Play game catalogue.","websiteUrl":"https://play.keff.uk/","remotes":[{"type":"streamable-http","url":"https://play.keff.uk/mcp","supportedProtocolVersions":["2025-03-26"]}]}

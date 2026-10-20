@@ -8,7 +8,7 @@ export async function handleMcp(request){
  if(request.headers.has('origin')&&request.headers.get('origin')!==siteOrigin)return new Response('Invalid origin',{status:403});
  if(!['POST','GET','DELETE'].includes(request.method))return new Response('Method not allowed',{status:405,headers:{Allow:'POST, GET, DELETE'}});
  // A fresh server/transport per request keeps public lookups stateless and isolated.
- const server=new Server({name:'play',version:'1.0.0'},{capabilities:{tools:{}}});
+ const server=new Server({name:'uk.keff/play',version:'1.0.0'},{capabilities:{tools:{}}});
  server.setRequestHandler(ListToolsRequestSchema,async()=>({tools:catalogTools.map(tool=>({...tool,annotations:{readOnlyHint:true,destructiveHint:false,idempotentHint:true,openWorldHint:false}}))}));
  server.setRequestHandler(CallToolRequestSchema,async({params})=>{
   try{return {content:[{type:'text',text:JSON.stringify(await runCatalogTool(params.name,params.arguments||{}))}]};}
