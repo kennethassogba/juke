@@ -1,10 +1,10 @@
-const PREFIX='play-harness-tycoon-';const CACHE=PREFIX+'v1';
+const PREFIX='play-harness-tycoon-';const CACHE=PREFIX+'v2';
 const HOME='/harness-tycoon/';
 const SHELL=[HOME,'/store/app.js','/store/app.css','/harness-tycoon/manifest.webmanifest','/art/harness-tycoon-192.png','/art/harness-tycoon-512.png'];
 const essential=["/assets/official/luna.webp","/assets/official/sol.webp","/assets/official/astra.webp","/assets/official/terra-launch.jpg","/assets/official/opus-reference.png","/assets/official/deepseek-whale.svg","/assets/official/codex.webp","/assets/official/claude-code.webp"];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll([...new Set([...SHELL,...essential])] )).then(()=>self.skipWaiting())));
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll([...new Set([...SHELL,...essential])])).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith(PREFIX)&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin||u.pathname.includes('/api/'))return;
+self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(e.request.method!=='GET'||u.origin!==location.origin||u.pathname.includes('/api/')||e.request.headers.get('accept')?.includes('text/markdown'))return;
 const navigation=e.request.mode==='navigate'&&u.pathname.startsWith(HOME);
 if(!navigation&&!SHELL.includes(u.pathname)&&!essential.includes(u.pathname))return;
 e.respondWith(fetch(e.request).then(r=>{if(r.ok){const copy=r.clone();e.waitUntil(caches.open(CACHE).then(c=>c.put(e.request,copy)));}return r;}).catch(async()=>await caches.match(e.request)||(navigation?await caches.match(HOME):null)||Response.error()));});

@@ -10,3 +10,7 @@ Play is the game store at https://play.keff.uk. This repository contains the sto
 - Keep local builds sequential with a 512 MB Node heap. Do not commit `output/`, recordings, credentials or local browser sessions.
 
 Run `npm run check`, `npm test` and a Wrangler dry run before release. Verify the three game routes, distinct manifests, install instructions and the real JUKE API on the published origin. Cloudflare deployment uses the existing `wrangler.jsonc`.
+
+- Keep the store to its title, search, game catalogue and functional actions. No sidebar, navigation tabs, slogans, install banners, attribution sentences or copyright line. Use the small keff icon link in the shared footer.
+- WebMCP, HTTP MCP and catalogue API are read-only. They must never start a match, invoke a paid model, alter allowance or subscribe an email.
+- Derive catalogue UI, metadata and agent responses from src/store/catalog.ts. Keep social previews factual and per-game. No invented reviews or ratings.

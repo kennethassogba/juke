@@ -1,0 +1,1 @@
+{"$schema":"https://static.modelcontextprotocol.io/schemas/mcp-server-card/v1.json","version":"1.0","serverInfo":{"name":"play","version":"1.0.0"},"description":"Read-only Play game catalogue.","transport":{"type":"streamable-http","url":"https://play.keff.uk/mcp"},"capabilities":{"tools":{}}}

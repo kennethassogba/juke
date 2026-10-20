@@ -2,7 +2,7 @@
   color-scheme: light;
   --bg: #ffffff; --ink: #1c2331; --muted: #596473; --line: #dfe3ea;
   --blue: #216e9d; --orange: #a94523; --rose: #96366f;
-  font: 16px/1.4 Arial, Helvetica, sans-serif;
+  font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   color: var(--ink); background: var(--bg); font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased; font-synthesis: none;
 }
@@ -385,3 +385,10 @@ body[data-mode="arcade"] button.model-kind { color: var(--muted); cursor: defaul
 @media (prefers-reduced-motion: no-preference) {
  .mode-options span, .level-options span { transition: background-color 180ms ease-out, border-color 180ms ease-out, box-shadow 180ms ease-out; }
 }
+
+/* Shared Play controls and studio icon. */
+.toggle, .help, .transport button { border-color: transparent; background: #f5f6f8; }
+footer { border-top: 0; }
+footer .keff, footer .github-link { display: grid; place-items: center; width: 44px; height: 44px; }
+footer .keff svg { width: 24px; height: 24px; fill: none; }
+footer .github-link .icon { width: 21px; height: 21px; }

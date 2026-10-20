@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Play",
   "short_name": "Play",
-  "description": "Games by k_eff",
+  "description": "JUKE, Harness Tycoon and Token Factory.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

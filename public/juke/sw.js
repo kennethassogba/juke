@@ -1,4 +1,4 @@
-const CACHE = 'juke-shell-play-v1';
+const CACHE = 'juke-shell-play-v2';
 const SHELL = ['/juke/', '/juke/styles.css', '/juke/app.js', '/juke/manifest.webmanifest', '/juke/icons/icon-192.png', '/juke/icons/icon-512.png', '/juke/favicon.svg'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL)).then(() => self.skipWaiting()));

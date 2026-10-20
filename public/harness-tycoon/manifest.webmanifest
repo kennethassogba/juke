@@ -2,7 +2,7 @@
   "id": "/harness-tycoon/",
   "name": "Harness Tycoon",
   "short_name": "Harness Tycoon",
-  "description": "Assign agents, route tools and clear incoming requests.",
+  "description": "Manage agents and tool calls",
   "start_url": "/harness-tycoon/",
   "scope": "/harness-tycoon/",
   "display": "standalone",

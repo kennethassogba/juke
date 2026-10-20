@@ -1,6 +1,6 @@
 # Play
 
-A store for browser games by [k_eff](https://keff.uk). Play immediately or install a game on your home screen.
+Browser games by [keff](https://keff.uk).
 
 **[play.keff.uk](https://play.keff.uk/)**
 
@@ -10,7 +10,13 @@ A store for browser games by [k_eff](https://keff.uk). Play immediately or insta
 | Harness Tycoon | [/harness-tycoon/](https://play.keff.uk/harness-tycoon/) | Assign agents, route tools and answer requests before their deadlines. Local simulation. |
 | Token Factory | [/token-factory/](https://play.keff.uk/token-factory/) | Race a computer to 10,000 tokens. Hire models and upgrade machines. Local simulation. |
 
-Each game has its own manifest, install icon and service-worker scope. The two strategy games work offline after loading. The store remembers recently played games on this device.
+Each game has its own manifest, install icon and service-worker scope. The two strategy games work offline after loading.
+
+## Agent access
+
+Search with `GET /api/games?q=…`, or read `GET /api/games/{slug}`. The same catalogue is available through browser WebMCP (`search_games`, `get_game`) and Streamable HTTP MCP at `/mcp`. Tools only read the catalogue. They do not start matches or spend credits.
+
+Discovery: `/llms.txt`, `/openapi.json`, `/.well-known/api-catalog` and `/.well-known/mcp/server-card.json`. Store and game detail pages include HTML content, structured data and per-game social previews. Request `Accept: text/markdown` for Markdown.
 
 ## JUKE experiment
 

@@ -8,21 +8,24 @@
     "build": "node scripts/build.mjs",
     "check": "node --check src/worker.js && tsc --noEmit && npm run build",
     "deploy": "npm run check && wrangler deploy",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "art": "node scripts/social.mjs"
   },
   "devDependencies": {
-    "esbuild": "^0.28.2",
-    "wrangler": "^4.150.0",
-    "typescript": "^7.0.2",
+    "@napi-rs/canvas": "^1.0.12",
+    "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@types/node": "^26.6.4"
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.150.0"
   },
   "dependencies": {
-    "three": "^0.186.1",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@phosphor-icons/react": "^2.1.10",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "@phosphor-icons/react": "^2.1.10"
+    "three": "^0.186.1"
   },
   "description": "Play: installable browser games by k_eff"
 }

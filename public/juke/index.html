@@ -5,10 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#ffffff">
   <meta name="description" content="Play 3D air hockey with one paddle against three OpenAI models.">
-  <meta property="og:title" content="JUKE: one paddle, three AI opponents">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://play.keff.uk/art/share-juke.png">
+  <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="JUKE air hockey arena">
+  <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://play.keff.uk/art/share-juke.png">
+  <meta property="og:title" content="JUKE · Play">
   <meta property="og:description" content="Play air hockey against three OpenAI models in a 3D arena.">
   <meta property="og:url" content="https://play.keff.uk/juke/">
-  <title>JUKE: one paddle, three AI opponents</title>
+  <title>JUKE · Play</title>
   <link rel="canonical" href="https://play.keff.uk/juke/">
   <link rel="manifest" href="/juke/manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -74,11 +79,11 @@
       <button id="replay" type="button" disabled><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m-4 4 4-4 4 4M7 11H5v10h14V11h-2"/></svg>Share replay</button>
     </div>
     <div class="daily-play"><span id="unlimited-play" hidden>Unlimited play</span><button id="budget-info" class="text-button" aria-haspopup="dialog"><span id="budget-summary">$0.50 daily play</span><svg class="icon small" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg></button><button class="text-button" data-open="newsletter">Get updates</button></div>
-    <aside id="install-nudge" class="install-nudge" hidden aria-label="Install JUKE"><img src="/juke/icons/icon-192.png" width="40" height="40" alt=""><span>Keep JUKE on your home screen</span><button id="install" class="text-button">Add</button><button id="dismiss-install" class="icon-button" aria-label="Dismiss install suggestion">×</button></aside>
+    <aside id="install-nudge" class="install-nudge" hidden aria-label="Install JUKE"><img src="/juke/icons/icon-192.png" width="40" height="40" alt=""><span>JUKE</span><button id="install" class="text-button">Install</button><button id="dismiss-install" class="icon-button" aria-label="Dismiss install suggestion">×</button></aside>
   </main>
   <footer>
-    <a class="keff" href="https://keff.uk" target="_blank" rel="noreferrer" aria-label="k_eff">k<span>_</span>eff</a>
-    <a class="github-link" href="https://github.com/kennethassogba/juke" target="_blank" rel="noreferrer"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg>Star on GitHub</a>
+    <a class="keff" href="https://keff.uk" target="_blank" rel="noreferrer" aria-label="keff.uk"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M5 4v16M17 5 6 14m5-5 8 11" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="github-link" href="https://github.com/kennethassogba/juke" target="_blank" rel="noreferrer" aria-label="Star JUKE on GitHub"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg></a>
     <nav aria-label="Social links">
       <a href="https://www.linkedin.com/company/keffuk" target="_blank" rel="noreferrer" aria-label="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.4 8.3H2.1V22h3.3V8.3ZM3.7 2a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8ZM22 13.4c0-3.7-2-5.4-4.5-5.4-2.1 0-3 1.2-3.5 2V8.3h-3.3V22H14v-7.6c0-2 1-3.1 2.5-3.1s2.2 1.1 2.2 3.1V22H22v-8.6Z"/></svg></a>
       <a href="https://get.keff.uk" target="_blank" rel="noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="insta-dot" cx="17.5" cy="6.5" r="1"/></svg></a>
@@ -94,10 +99,10 @@
       </fieldset>
       <p id="mode-description">Three real models. $0.50 of API calls covered daily.</p>
       <fieldset id="difficulty-options" hidden><legend>Difficulty</legend><div class="level-options">
-        <label><input id="level-easy" type="radio" name="difficulty" value="easy"><span>Easy<small>Find your rhythm</small></span></label>
-        <label><input id="level-normal" type="radio" name="difficulty" value="normal"><span>Normal<small>A fair challenge</small></span></label>
-        <label><input id="level-hard" type="radio" name="difficulty" value="hard" checked><span>Hard<small>Quick on the return</small></span></label>
-        <label><input id="level-expert" type="radio" name="difficulty" value="expert"><span>Expert<small>No time to hesitate</small></span></label>
+        <label><input id="level-easy" type="radio" name="difficulty" value="easy"><span>Easy<small>Slower opponents</small></span></label>
+        <label><input id="level-normal" type="radio" name="difficulty" value="normal"><span>Normal<small>Standard speed</small></span></label>
+        <label><input id="level-hard" type="radio" name="difficulty" value="hard" checked><span>Hard<small>Faster opponents</small></span></label>
+        <label><input id="level-expert" type="radio" name="difficulty" value="expert"><span>Expert<small>Fastest opponents</small></span></label>
       </div></fieldset>
       <div class="settings-bottom"><button id="obstacles" class="toggle" aria-pressed="true" type="button"><span class="toggle-dot" aria-hidden="true"></span>Bumpers</button><button id="apply-mode" class="play" type="submit">Play</button></div>
     </form>
@@ -118,7 +123,7 @@
   </dialog>
   <dialog id="experiment" aria-labelledby="experiment-title">
     <button class="close" data-close aria-label="Close experiment">×</button>
-    <h2 id="experiment-title">Can a decision model keep up?</h2>
+    <h2 id="experiment-title">Decision models</h2>
     <p>JUKE explores how API response time changes a game. Three models see the same kind of physical state and choose from five moves.</p>
     <dl class="model-config"><dt>GPT-6 Luna</dt><dd>Decisions API · <code>choice</code> question. Returns one allowed move directly.</dd><dt>GPT-5.6 Luna</dt><dd>Responses API · structured JSON · reasoning set to <code>none</code>.</dd><dt>GPT-4.1 nano</dt><dd>Responses API · structured JSON.</dd></dl>
     <p>The puck keeps moving while they decide. Their moves take effect when the response arrives. Costs use actual token usage.</p>
@@ -137,7 +142,7 @@
   </dialog>
   <dialog id="newsletter" aria-labelledby="newsletter-title">
     <button class="close" data-close aria-label="Close mailing list">×</button>
-    <h2 id="newsletter-title">Stay in the loop</h2>
+    <h2 id="newsletter-title">JUKE updates</h2>
     <p>Get news about JUKE and new opponents.</p>
     <form id="signup-form">
       <label for="signup-email">Email</label><input id="signup-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required>
@@ -151,7 +156,7 @@
   </dialog>
   <dialog id="install-guide" aria-labelledby="install-title">
     <button class="close" data-close aria-label="Close install instructions">×</button>
-    <h2 id="install-title">Add JUKE</h2>
+    <h2 id="install-title">Install JUKE</h2>
     <p id="install-instructions"></p>
     <p>Launch from your home screen. OpenAI mode needs an internet connection. Arcade works offline once the app has loaded.</p>
   </dialog>

@@ -2,7 +2,7 @@
   "id": "/token-factory/",
   "name": "Token Factory",
   "short_name": "Token Factory",
-  "description": "Race a computer opponent to 10,000 tokens.",
+  "description": "Race to 10,000 tokens",
   "start_url": "/token-factory/",
   "scope": "/token-factory/",
   "display": "standalone",
