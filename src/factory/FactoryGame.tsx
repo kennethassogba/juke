@@ -28,8 +28,7 @@ export function FactoryGame(){
  const outOfCredits=stats.profit<0&&player.credits<=0;
  const send=(action:Action)=>setRace(s=>actRace(s,action));
  useEffect(()=>{
-  document.title='Token factory · Play';
-  document.getElementById('factory-title')?.focus();
+  document.title='Token Factory · Play';
   const frame=()=>{
    const now=performance.now(),delta=lastFrame.current?Math.min((now-lastFrame.current)/1000,.5):0;lastFrame.current=now;
    if(stage.current==='running'){
@@ -71,7 +70,7 @@ export function FactoryGame(){
   <a className="factory-skip" href="#factory-make">Skip to making tokens</a>
   <GameHeader><button aria-label="How to play" ref={helpTrigger} onClick={openHelp}><Question size={22}/></button></GameHeader>
   <main className="factory-shell">
-   <div className="factory-heading"><h1 id="factory-title" tabIndex={-1}>Token factory</h1><div className="factory-clock"><span>{race.status==='ready'?'Round length':'Time left'}</span><strong>{clock(Math.ceil(DURATION-race.elapsed))}</strong></div></div>
+   <div className="factory-heading"><h1 id="factory-title" tabIndex={-1}>Token Factory</h1><div className="factory-clock"><span>{race.status==='ready'?'Round length':'Time left'}</span><strong>{clock(Math.ceil(DURATION-race.elapsed))}</strong></div></div>
    <div className="factory-race" aria-label="Race progress"><div className="race-line"><span><b>You</b> {num(player.tokens)}</span><span>Computer <b>{num(rival.tokens)}</b></span></div><div className="race-tracks"><div className="race-track"><span style={{width:Math.min(100,player.tokens/TARGET*100)+'%'}}/></div><div className="race-track rival-track"><span style={{width:Math.min(100,rival.tokens/TARGET*100)+'%'}}/></div></div><p>First to 10,000 tokens. Most tokens at 2:00 wins.</p></div>
    <section className={'factory-floor '+(playing?'is-running':'')} aria-label="Your token factory">
     <div className="factory-readout"><span>Tokens</span><strong>{num(player.tokens)}</strong><small>{model?`${one(outOfCredits?0:stats.rate)} / sec`:'Ready to start'}</small></div>

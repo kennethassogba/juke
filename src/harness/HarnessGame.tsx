@@ -19,7 +19,7 @@ export function HarnessGame(){
  useEffect(()=>{if(focusAfterAction.current){focusAfterAction.current=false;workbench.current?.focus();}},[job?.stage,job?.id]);
  const paused=run.status==='paused',tutorial=run.status==='tutorial'||(paused&&run.previous==='tutorial');
  useEffect(()=>{
-  document.title='Harness Tycoon · Play';document.getElementById('harness-title')?.focus();
+  document.title='Harness Tycoon · Play';
  },[]);
  useEffect(()=>{
   const timer=setInterval(()=>{const now=performance.now(),dt=last.current?Math.min(.5,(now-last.current)/1000):0;last.current=now;if(phase.current==='running'||phase.current==='tutorial')setRun(s=>tickHarness(s,dt*speed));},100);
