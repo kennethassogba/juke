@@ -1,0 +1,9 @@
+{
+  "origin": "sourced",
+  "source": "https://www.deepseek.com/en/",
+  "owner": "DeepSeek",
+  "checkedAt": "2026-10-08",
+  "method": "Exact unmodified header SVG exported from official HTML; namespace added for standalone loading.",
+  "sha256": "36ea0fb0a7389dcad6fec1a04f9d31efe02a128426daed0bf0b6038358f349f3",
+  "license": "Not asserted"
+}

@@ -1,4 +1,4 @@
-name: Check JUKE
+name: Check Play
 
 on:
   push:
@@ -19,4 +19,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+      - run: npm test
       - run: npx wrangler deploy --dry-run

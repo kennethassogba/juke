@@ -128,7 +128,7 @@ async function connect() {
   connecting = true;
   play.disabled = true; play.textContent = 'Connecting';
   try {
-    const response = await fetch('/api/status', { cache: 'no-store' });
+    const response = await fetch('/juke/api/status', { cache: 'no-store' });
     const data = await response.json();
     updateBudget(data.budget);
     connected = response.ok && data.configured && MODELS.every(model => data.models?.some(item => item.id === model && item.ready));
@@ -153,7 +153,7 @@ async function decide(bot, match) {
   bot.thinking = true; bot.started = performance.now();
   const snapshot = physicalState(bot);
   try {
-    const response = await fetch('/api/decision', {
+    const response = await fetch('/juke/api/decision', {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ model: bot.model, state: snapshot }),
     });
@@ -412,7 +412,7 @@ function drawReplay() {
     video.fillStyle = '#596473'; video.font = '500 26px Arial'; video.fillText(bot.thinking ? 'READING' : bot.action?.toUpperCase() || 'WAITING', x, 1755);
     video.font = '500 23px Arial'; video.fillText(performance.now() < bot.reactionUntil ? bot.taunt : PERSONAS[index], x, 1800, 300);
   });
-  video.textAlign = 'left'; video.fillStyle = '#596473'; video.font = '500 30px Arial'; video.fillText(`juke.keff.uk · ${gameMode === 'arcade' ? 'Arcade / ' + LEVELS[difficulty].label : 'OpenAI'}`, 48, 1860);
+  video.textAlign = 'left'; video.fillStyle = '#596473'; video.font = '500 30px Arial'; video.fillText(`play.keff.uk/juke · ${gameMode === 'arcade' ? 'Arcade / ' + LEVELS[difficulty].label : 'OpenAI'}`, 48, 1860);
 }
 
 function hud(now) {
@@ -542,7 +542,7 @@ $('#play-settings-form').addEventListener('submit', async event => {
 const shareApp = $('#share-app');
 let shareFeedbackTimer;
 shareApp.addEventListener('click', async () => {
-  const shareData = { title: 'JUKE', text: 'Play air hockey against three AI opponents.', url: 'https://juke.keff.uk/' };
+  const shareData = { title: 'JUKE', text: 'Play air hockey against three AI opponents.', url: 'https://play.keff.uk/juke/' };
   const wasPlaying = active && !paused;
   let openedNativeShare = false;
   shareApp.disabled = true;
@@ -583,12 +583,12 @@ function updateBudget(value) {
   if (value.remainingUsd <= 0) budgetBlocked = true;
   if (value.remainingUsd > .01 && budgetBlocked) { budgetBlocked = false; if (gameMode === 'openai') { play.textContent = serial ? 'Play again' : 'Play'; controls(); } }
 }
-async function refreshBudget() { if (gameMode !== 'openai') return; try { const response = await fetch('/api/budget', { cache: 'no-store' }); if (response.ok) updateBudget((await response.json()).budget); } catch {} }
+async function refreshBudget() { if (gameMode !== 'openai') return; try { const response = await fetch('/juke/api/budget', { cache: 'no-store' }); if (response.ok) updateBudget((await response.json()).budget); } catch {} }
 replay.addEventListener('click', async () => {
   if (!clip) return;
   const file = new File([clip], `juke-${new Date().toISOString().slice(0, 10)}.${clip.type.includes('mp4') ? 'mp4' : 'webm'}`, { type: clip.type });
   if (navigator.share && navigator.canShare?.({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: 'JUKE replay', text: 'One paddle against three AI opponents. juke.keff.uk' }); }
+    try { await navigator.share({ files: [file], title: 'JUKE replay', text: 'One paddle against three AI opponents. play.keff.uk/juke' }); }
     catch (error) { if (error.name !== 'AbortError') openDialog('share-guide', replay); }
   } else openDialog('share-guide', replay);
 });
@@ -609,8 +609,10 @@ $('#install').addEventListener('click', async () => {
   $('#install-instructions').textContent = ios ? 'In Safari, open the Share menu, choose Add to Home Screen, turn on Open as Web App, then tap Add.' : /Android/.test(navigator.userAgent) ? 'In Chrome, open the ⋮ menu and choose Add to Home screen, then Install. If Install is unavailable, choose Create shortcut.' : 'Open your browser menu and choose Install JUKE or Install this page as an app. The option is available in Chrome and Edge.';
   openDialog('install-guide');
 });
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+try { const recent = JSON.parse(localStorage.getItem('play-recent') || '[]'); localStorage.setItem('play-recent', JSON.stringify(['juke', ...recent.filter(slug => slug !== 'juke')].slice(0, 3))); } catch {}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/juke/sw.js', { scope: '/juke/' }).catch(() => {});
 showInstallNudge();
+if (new URLSearchParams(location.search).has('install')) { $('#install').click(); history.replaceState(null, '', location.pathname); }
 const signup = $('#signup-form');
 $('#unsubscribe').hidden = !recalled('juke-unsubscribe');
 const removalToken = new URL(location.href).searchParams.get('unsubscribe');
@@ -623,7 +625,7 @@ signup.addEventListener('submit', async event => {
   const status = $('#signup-status'); status.textContent = 'Joining…'; status.dataset.error = 'false';
   try {
     const form = new FormData(signup);
-    const response = await fetch('/api/subscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: form.get('email'), consent: form.get('consent') === 'on', website: form.get('website') }) });
+    const response = await fetch('/juke/api/subscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: form.get('email'), consent: form.get('consent') === 'on', website: form.get('website') }) });
     const data = await response.json(); if (!response.ok) throw new Error(data.message);
     status.textContent = data.message; signup.reset();
     if (data.token) { remember('juke-unsubscribe', data.token); $('#unsubscribe').hidden = false; }
@@ -633,7 +635,7 @@ signup.addEventListener('submit', async event => {
 $('#unsubscribe').addEventListener('click', async () => {
   const button = $('#unsubscribe'); button.disabled = true;
   try {
-    const response = await fetch('/api/unsubscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token: recalled('juke-unsubscribe') }) });
+    const response = await fetch('/juke/api/unsubscribe', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token: recalled('juke-unsubscribe') }) });
     const data = await response.json(); if (!response.ok) throw new Error(data.message);
     remember('juke-unsubscribe', ''); button.hidden = true; $('#signup-status').textContent = data.message;
   } catch { $('#signup-status').textContent = 'Could not leave the list. Try again.'; }

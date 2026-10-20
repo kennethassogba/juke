@@ -1,0 +1,25 @@
+{
+  "id": "/juke/",
+  "name": "JUKE Air Hockey",
+  "short_name": "JUKE",
+  "description": "One paddle against three real AI opponents.",
+  "start_url": "/juke/",
+  "scope": "/juke/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/juke/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/juke/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

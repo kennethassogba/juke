@@ -1,0 +1,25 @@
+{
+  "id": "/harness-tycoon/",
+  "name": "Harness Tycoon",
+  "short_name": "Harness Tycoon",
+  "description": "Assign agents, route tools and clear incoming requests.",
+  "start_url": "/harness-tycoon/",
+  "scope": "/harness-tycoon/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/art/harness-tycoon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/art/harness-tycoon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

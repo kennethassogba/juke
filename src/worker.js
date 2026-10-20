@@ -1,4 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
+import {routeSite} from './site.js';
 
 const MODELS = Object.freeze({
   'gpt-6-luna': { endpoint: '/v1/decisions', input: 0.10, cached: 0.01, output: 0.50, cacheWrite: 0.125, kind: 'decision' },
@@ -353,7 +354,11 @@ export class IpRateLimiter {
 
 export default {
   async fetch(request, env) {
+    const site = await routeSite(request, env);
+    if (site) return site;
     const url = new URL(request.url);
+    url.pathname = url.pathname.slice('/juke'.length);
+    request = new Request(url, request);
     if (url.pathname === '/api/subscribe' || url.pathname === '/api/unsubscribe') return mailingList(request, env);
     if (url.pathname === '/api/budget' || url.pathname === '/api/status' || url.pathname === '/api/decision') {
       const session = browserSession(request, env);

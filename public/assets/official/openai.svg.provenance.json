@@ -1,0 +1,9 @@
+{
+  "origin": "sourced",
+  "owner": "OpenAI",
+  "source": "https://openai.com/index/gpt-5-6/",
+  "method": "Exact official header wordmark exported from DOM",
+  "checkedAt": "2026-10-08",
+  "license": "Not asserted; commercial print clearance not verified.",
+  "sha256": "e3a0862e931df88229b091f233089a73406bd895ae9e9ad16a581a208c3b69ee"
+}

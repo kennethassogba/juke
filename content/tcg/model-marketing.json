@@ -1,0 +1,158 @@
+{
+  "gpt-luna": {
+    "release": "GPT-6 Luna",
+    "title": "Luna",
+    "edition": "GPT-6",
+    "layout": "space",
+    "asset": "/assets/official/luna.webp",
+    "alt": "OpenAI’s official crescent moon artwork",
+    "tagline": "Fast and efficient everyday work at scale.",
+    "source": "https://openai.com/index/practical-guide-building-gpt-6/",
+    "checkedAt": "2026-10-08",
+    "apiPricing": {
+      "input": 0.1,
+      "output": 0.5,
+      "cachedInput": 0.01,
+      "currency": "USD",
+      "unit": "per million tokens",
+      "source": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+      "checkedAt": "2026-10-08",
+      "note": "Standard text tokens. Prompts up to 272K tokens.",
+      "historical": false
+    }
+  },
+  "gpt-sol": {
+    "release": "GPT-6.1 Sol",
+    "title": "Sol",
+    "edition": "GPT-6.1",
+    "layout": "glass",
+    "asset": "/assets/official/sol.webp",
+    "alt": "OpenAI’s official sun artwork",
+    "tagline": "Near-Astra intelligence for a fifth of the price.",
+    "source": "https://openai.com/index/practical-guide-building-gpt-6/",
+    "checkedAt": "2026-10-08",
+    "apiPricing": {
+      "input": 2,
+      "output": 10,
+      "cachedInput": 0.1,
+      "currency": "USD",
+      "unit": "per million tokens",
+      "source": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "checkedAt": "2026-10-08",
+      "note": "Standard text tokens. Prompts up to 272K tokens.",
+      "historical": false
+    }
+  },
+  "gpt-astra": {
+    "release": "GPT-6 Astra",
+    "title": "Astra",
+    "edition": "GPT-6",
+    "layout": "cosmic",
+    "asset": "/assets/official/astra.webp",
+    "alt": "OpenAI’s official spiral galaxy artwork",
+    "tagline": "Our most intelligent model for the best results.",
+    "source": "https://openai.com/index/practical-guide-building-gpt-6/",
+    "checkedAt": "2026-10-08",
+    "apiPricing": {
+      "input": 10,
+      "output": 50,
+      "cachedInput": 1,
+      "currency": "USD",
+      "unit": "per million tokens",
+      "source": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+      "checkedAt": "2026-10-08",
+      "note": "Standard text tokens. Prompts up to 272K tokens.",
+      "historical": false
+    }
+  },
+  "gpt-terra": {
+    "release": "GPT-5.6 Terra",
+    "title": "Terra",
+    "edition": "GPT-5.6",
+    "layout": "space",
+    "asset": "/assets/official/terra-launch.jpg",
+    "alt": "OpenAI’s Terra launch artwork: Earth against a field of stars.",
+    "tagline": "GPT-5.6 model that balances intelligence and cost.",
+    "source": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+    "checkedAt": "2026-10-08",
+    "apiPricing": {
+      "input": 2,
+      "output": 12,
+      "cachedInput": 0.2,
+      "currency": "USD",
+      "unit": "per million tokens",
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+      "checkedAt": "2026-10-08",
+      "note": "Standard text tokens. Prompts up to 272K tokens.",
+      "historical": false
+    }
+  },
+  "claude-opus": {
+    "release": "Claude Opus 5.5",
+    "title": "Opus",
+    "edition": "Claude 5.5",
+    "layout": "editorial",
+    "asset": "/assets/official/opus-reference.png",
+    "alt": "Opus pixel mascot from the supplied Claude family reference",
+    "tagline": "Everyday intelligence",
+    "source": "https://www.anthropic.com/claude-opus-5-5",
+    "checkedAt": "2026-10-08",
+    "apiPricing": {
+      "input": 4,
+      "output": 20,
+      "cachedInput": 0.2,
+      "currency": "USD",
+      "unit": "per million tokens",
+      "source": "https://claude.com/platform/api",
+      "checkedAt": "2026-10-08",
+      "note": "Standard inference. Cache reads shown; cache writes billed separately.",
+      "historical": false
+    },
+    "taglineSource": "User-supplied Claude 5.5 family marketing reference. Exact public asset not independently located.",
+    "assetOrigin": "user-provided-reference"
+  },
+  "deepseek-r1": {
+    "release": "DeepSeek-R1 (January 2025)",
+    "title": "DeepSeek R1",
+    "edition": "DeepSeek",
+    "layout": "material",
+    "asset": "/assets/official/deepseek-whale.svg",
+    "alt": "DeepSeek’s official whale mark",
+    "tagline": "Performance on par with OpenAI-o1",
+    "source": "https://api-docs.deepseek.com/news/news250120/",
+    "checkedAt": "2026-10-08",
+    "apiPricing": {
+      "input": 0.55,
+      "output": 2.19,
+      "cachedInput": 0.14,
+      "currency": "USD",
+      "unit": "per million tokens",
+      "source": "https://api-docs.deepseek.com/news/news250120/",
+      "checkedAt": "2026-10-08",
+      "note": "Launch pricing, January 2025. Historical reference; not current API rates.",
+      "historical": true
+    }
+  },
+  "codex": {
+    "release": "Codex",
+    "title": "Codex",
+    "edition": "OpenAI",
+    "layout": "studio",
+    "asset": "/assets/official/codex.webp",
+    "alt": "Official blue Codex pet in OpenAI’s Codex Originals campaign",
+    "tagline": "These are the builders of our time",
+    "source": "https://openai.com/codex-originals/",
+    "checkedAt": "2026-10-08"
+  },
+  "claude-code": {
+    "release": "Claude Code",
+    "title": "Claude Code",
+    "edition": "Anthropic",
+    "layout": "terminal",
+    "asset": "/assets/official/claude-code.webp",
+    "alt": "Official Claude Code terminal marketing image",
+    "tagline": "Meets you where you code",
+    "source": "https://claude.com/product/claude-code",
+    "checkedAt": "2026-10-08"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "publisher": "Artificial Analysis",
+  "metric": "Intelligence Index",
+  "methodology": "https://artificialanalysis.ai/methodology/intelligence-benchmarking",
+  "selection": "Highest published reasoning configuration for the exact referenced release. DeepSeek R1 refers to the original January 2025 release, not R1 0528.",
+  "records": {
+    "gpt-luna": {
+      "score": 38,
+      "model": "GPT-6 Luna (Max)",
+      "indexVersion": "4.3.2",
+      "checkedAt": "2026-10-08",
+      "source": "https://artificialanalysis.ai/models/releases/gpt-6-luna"
+    },
+    "gpt-terra": {
+      "score": 42,
+      "model": "GPT-5.6 Terra (Max)",
+      "indexVersion": "4.3.2",
+      "checkedAt": "2026-10-08",
+      "source": "https://artificialanalysis.ai/models/releases/gpt-5-6-terra"
+    },
+    "gpt-sol": {
+      "score": 52,
+      "model": "GPT-6.1 Sol (Max)",
+      "indexVersion": "4.3.2",
+      "checkedAt": "2026-10-08",
+      "source": "https://artificialanalysis.ai/models/releases/gpt-6-1-sol"
+    },
+    "gpt-astra": {
+      "score": 53,
+      "model": "GPT-6 Astra (Max)",
+      "indexVersion": "4.3.2",
+      "checkedAt": "2026-10-08",
+      "source": "https://artificialanalysis.ai/models/releases/gpt-6-astra"
+    },
+    "claude-opus": {
+      "score": 58,
+      "model": "Claude Opus 5.5 (Max, Default Fallback)",
+      "indexVersion": "4.3.2",
+      "checkedAt": "2026-10-08",
+      "source": "https://artificialanalysis.ai/models/releases/claude-opus-5-5"
+    },
+    "deepseek-r1": {
+      "score": 11,
+      "model": "DeepSeek R1 (Jan '25)",
+      "indexVersion": "4.3.2",
+      "checkedAt": "2026-10-08",
+      "source": "https://artificialanalysis.ai/models/deepseek-r1-0120"
+    }
+  }
+}
