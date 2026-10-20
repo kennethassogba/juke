@@ -19,7 +19,7 @@
           "public/index.html"
         ],
         "createdAt": "2026-10-14T00:00:59.588Z",
-        "reason": "Agent: scanner counts the visually hidden h1 and peer model labels. Visible brand and scores are 30-42px; guide heading 32px versus body 16px, confirmed in the browser."
+        "reason": "Agent: Play store browser inspection confirms visible 32px brand, 20px game headings and 14px descriptions. The h1 is intentionally sr-only to keep the catalogue minimal as requested by the user. External store CSS supplies the visible hierarchy."
       },
       {
         "rule": "bounce-easing",
